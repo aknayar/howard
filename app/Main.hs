@@ -1,21 +1,28 @@
 module Main (main) where
 
 import Lib
-import qualified Data.Map as Map
 
-lum = Map.fromList [(0.0, ' '),  (1, '.'),  (2, ','),  (3, '-'),  (4, '~'),  (5, ':'),  (6, ';'),  (7, '='),  (8, '!'),  (9, '*'),  (10, '#'),  (11, '$'),  (12, '@')]
+data Vec2I = Vec2I 
+  {
+    xI :: Int,
+    yI :: Int
+  }
 
+data  Vec2D = Vec2D 
+  {
+    xD :: Double, 
+    yD :: Double
+  }
 
-convertLine :: [Float] -> [Char]
-convertLine line = map (\x -> case Map.lookup x lum of
-  Nothing -> ' '
-  Just x -> x) line
-
-
-printBoard :: [[Float]] -> IO()
-printBoard board = mapM_ (putStrLn . convertLine) board
+data Ray = Ray
+  { rayOrigin :: Vec2I  -- Assuming you have a Point3D data type
+  , rayDirection :: Vec2D    -- Assuming you have a Vec3 data type
+  , rayPosition :: Vec2I
+  }
 
 main :: IO ()
 main = do
   putStrLn "hello world"
-  printBoard [[0 / 10, 10 / 10, 100 / 10]]
+
+
+
