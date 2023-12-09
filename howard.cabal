@@ -27,6 +27,7 @@ library
   exposed-modules:
       Color
       Lib
+      Ray
       Vec3
   other-modules:
       Paths_howard

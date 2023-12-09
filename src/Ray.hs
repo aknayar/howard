@@ -9,4 +9,4 @@ data Ray = Ray
     }
 
 at :: Ray -> Double -> Vec3
-at (Ray or dir) t = or `addVec3` (dir `multiplyVec3` t)
+at (Ray org dir) t = org `addVec3` (dir `multiplyVec3` t)
