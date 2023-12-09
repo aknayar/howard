@@ -5,6 +5,7 @@ import Vec3
 import Color
 import Ray
 import Sphere
+import Vec3 (minusVec3)
 
 
 main :: IO ()
@@ -43,9 +44,12 @@ main = do
 
 rayColor :: Ray -> Vec3
 rayColor (Ray org dir)
-                    | hitSphere (Vec3 0 0 (-1)) 0.5 (Ray org dir) > 0 = Vec3 1 0 0
+                    | t > 0.0 = hit
                     | otherwise = ret
                                 where
+                                    t = hitSphere (Vec3 0 0 (-1)) 0.5 (Ray org dir)
+                                    n = unitVector (at (Ray org dir) t `minusVec3` Vec3 0 0 (-1))
+                                    hit = Vec3 (x n + 1) (y n + 1) (z n + 1) `multiplyVec3` 0.5
                                     unit_direction = unitVector dir
                                     a = (y unit_direction + 1.0) * 0.5
                                     ret = (Vec3 1.0 1.0 1.0 `multiplyVec3` (1.0 - a)) `addVec3` (Vec3 0.5 0.7 1.0 `multiplyVec3` a)
