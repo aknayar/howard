@@ -3,26 +3,46 @@ module Main (main) where
 import Lib
 import Vec3
 import Color
+import Ray
+import Vec3 (minusVec3, multiplyVec3)
 
 main :: IO ()
 main = do
-    -- Image
-    let image_width = 256
-        image_height = 256
 
-    -- Render
+    let aspect_ratio = 16.0 / 9.0
+        image_width = 400
+
+        image_height = max 1 (floor $ fromIntegral image_width / aspect_ratio)
+        
+        focal_length = 1.0
+        view_port_height = 2.0
+        view_port_width = view_port_height * (fromIntegral image_width / fromIntegral image_height)
+        camera_center = Vec3 0 0 0
+
+    let view_port_u = Vec3 view_port_width 0 0
+        view_port_v = Vec3 0 (-view_port_height) 0
+
+        pixel_delta_u = view_port_u `divideVec3`  fromIntegral image_width
+        pixel_delta_v = view_port_v `divideVec3`  fromIntegral image_height
+    
+    let view_port_upper_left = camera_center `minusVec3` (Vec3 0 0 focal_length `minusVec3` ((view_port_u `divideVec3` 2) `minusVec3` (view_port_v `divideVec3` 2)))
+        pixel100_loc = view_port_upper_left `addVec3` ((pixel_delta_u `addVec3` pixel_delta_v) `multiplyVec3` 0.5)
+
     putStrLn $ "P3\n" ++ show image_width ++ " " ++ show image_height ++ "\n255"
 
     mapM_ (\j -> mapM_ (\i -> do
-            let r =  i /  (image_width-1)
-                g =  j / (image_height-1)
-                b = 0 :: Double
+            let pixel_center = pixel100_loc `addVec3` ((pixel_delta_u `multiplyVec3` fromIntegral i) `addVec3` (pixel_delta_v `multiplyVec3` fromIntegral j))
+                ray_direction = pixel_center `minusVec3` camera_center
 
-            writeColor (Vec3 r g b)
+                r = Ray camera_center ray_direction
+                pixel_color = rayColor r
+
+            writeColor pixel_color
         ) [0..image_width-1]) [0..image_height-1]
 
-
-
-
-
-
+rayColor :: Ray -> Vec3
+rayColor (Ray org dir) = ret
+                            where
+                                unit_direction = unitVector dir
+                                a = (y dir + 1.0) * 0.5
+                                ret = (Vec3 1.0 1.0 1.0 `multiplyVec3` (1.0 - a)) `addVec3` (Vec3 0.5 0.7 1.0 `multiplyVec3` a)
