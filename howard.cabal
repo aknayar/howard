@@ -28,6 +28,7 @@ library
       Color
       Lib
       Ray
+      Sphere
       Vec3
   other-modules:
       Paths_howard
