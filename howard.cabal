@@ -25,7 +25,9 @@ source-repository head
 
 library
   exposed-modules:
+      Color
       Lib
+      Vec3
   other-modules:
       Paths_howard
   autogen-modules:
