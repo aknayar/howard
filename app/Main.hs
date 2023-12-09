@@ -1,6 +1,7 @@
 module Main (main) where
 
 import Lib
+import Vec3
 
 main :: IO ()
 main = do
