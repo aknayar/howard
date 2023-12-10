@@ -38,11 +38,15 @@ instance Hittable Sphere where
                     new_front_face = case record of
                         Nothing -> False
                         Just real_record -> front_face real_record
-
+                    
+                    new_record = case record of
+                        Nothing -> HitRecord (Vec3 0 0 0) (Vec3 0 0 0) 0 False
+                        Just real_record -> real_record
+                    
 
                 in case (validRoot1, validRoot2) of
-                    (True, _) -> Just $ updateHitRecord root1 (HitRecord (Vec3 0 0 0) (Vec3 0 0 0) root1 new_front_face) 
-                    (_, True) -> Just $ updateHitRecord root2 (HitRecord (Vec3 0 0 0) (Vec3 0 0 0) root2 new_front_face)
+                    (True, _) -> Just $ updateHitRecord root1 (HitRecord (p new_record) (n new_record) root1 new_front_face) 
+                    (_, True) -> Just $ updateHitRecord root2 (HitRecord (p new_record) (n new_record) root2 new_front_face)
                     _ -> Nothing
 
 
