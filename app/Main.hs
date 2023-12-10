@@ -63,6 +63,8 @@ rayColor (Ray org dir) world
                 where
                     tempRecord = HitRecord (Vec3 0 0 0 ) (Vec3 0 0 0 ) 0 False
                     isHit = hit (Ray org dir) 0 999999 tempRecord
+                        case isHit of
+                            Nothing -> 
                     retHit = (n isHit `addVec3` Vec3 1 1 1) `multiplyVec3` 0.5
                     unit_direction = unitVector dir
                     a = (y unit_direction + 1.0) * 0.5
