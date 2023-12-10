@@ -3,6 +3,8 @@ module Hittable where
 import Vec3
 import Ray
 import Data.Maybe (fromMaybe)
+import Interval
+
 data HitRecord = HitRecord { p :: Vec3, n :: Vec3, t :: Double, front_face :: Bool }
 
 setFaceNormal :: Ray -> Vec3 -> HitRecord -> HitRecord
@@ -13,7 +15,7 @@ setFaceNormal r outward_normal original =
       new_normal = if new_front_face then outward_normal else negateVec3 outward_normal
 
 class Hittable a where
-  hit :: Ray -> Double -> Double -> Maybe HitRecord -> a -> Maybe HitRecord
+  hit :: Ray -> Interval -> Maybe HitRecord -> a -> Maybe HitRecord
 
 newtype HittableList a = HittableList [a]
 
@@ -25,14 +27,14 @@ newtype HittableList a = HittableList [a]
 
 
 instance Hittable a => Hittable (HittableList a) where
-    hit ray tmin tmax record (HittableList items) = record
+    hit ray range record (HittableList items) = record
         where
             reduce i (r, current_max) = fromMaybe (r, current_max) m
                 where
                     m = do
-                        record <- hit ray tmin current_max record i
+                        record <- hit ray range record i
                         return (Just record, t record)
-            record = fst $ foldr reduce (Nothing, tmax) items
+            record = fst $ foldr reduce (Nothing, t_max range) items
 
 -- instance Hittable a => Hittable (HittableList a) where
 --     hit r ray_tmin ray_tmax (HittableList objects) = record

@@ -5,7 +5,8 @@ import Vec3
 import Color
 import Ray
 import Sphere
-import Hittable (HitRecord(HitRecord), HittableList (HittableList))
+import Hittable
+import Interval
 
 
 
@@ -61,7 +62,7 @@ rayColor :: Hittable a => Ray -> a -> Vec3
 rayColor (Ray org dir) world = ret
                 where
                     tempRecord = HitRecord (Vec3 0 0 0 ) (Vec3 0 0 0 ) 0 False
-                    isHit = hit (Ray org dir) 0 999999 (Just tempRecord) world
+                    isHit = hit (Ray org dir) (Interval 0 9999999) (Just tempRecord) world
                     unit_direction = unitVector dir
                     a = (y unit_direction + 1.0) * 0.5
                     ret = case isHit of

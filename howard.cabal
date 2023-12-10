@@ -31,6 +31,7 @@ library
       Sphere
       Vec3
       Hittable
+      Interval
   other-modules:
       Paths_howard
   autogen-modules:

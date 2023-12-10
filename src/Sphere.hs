@@ -3,10 +3,10 @@ module Sphere where
 import Vec3
 import Ray
 import Hittable
-
+import Interval
 data Sphere = Sphere { center :: Vec3, radius :: Double}
 instance Hittable Sphere where
-    hit r ray_tmin ray_tmax record s =
+    hit r range record s =
         let oc = origin r `minusVec3` center s
             a = direction r `dot` direction r
             half_b = dot oc (direction r)
@@ -14,13 +14,13 @@ instance Hittable Sphere where
             discriminant = half_b * half_b - a * c
 
             checkRoot :: Double -> Bool
-            checkRoot root = root > ray_tmin && root < ray_tmax
+            checkRoot root = surrounds root range
 
             updateHitRecord :: Double -> HitRecord -> HitRecord
             updateHitRecord root (HitRecord p n t f) =
                 let hit_point = origin r `addVec3` (direction  r`multiplyVec3` root)
                     hit_normal = (hit_point `minusVec3` center s) `divideVec3` radius s
-                    outward_normal = (p `minusVec3` (center s)) `divideVec3` radius s
+                    outward_normal = (p `minusVec3` center s) `divideVec3` radius s
                     new_front_face = maybe False front_face record
                 in setFaceNormal r outward_normal (HitRecord hit_point hit_normal root new_front_face)
 
