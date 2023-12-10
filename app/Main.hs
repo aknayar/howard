@@ -5,8 +5,6 @@ import Vec3
 import Color
 import Ray
 import Sphere
-import Vec3 (minusVec3)
-import Hittable
 import Hittable (HitRecord(HitRecord), HittableList (HittableList))
 
 
