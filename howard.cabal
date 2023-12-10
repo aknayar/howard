@@ -30,6 +30,7 @@ library
       Ray
       Sphere
       Vec3
+      Hittable
   other-modules:
       Paths_howard
   autogen-modules:
