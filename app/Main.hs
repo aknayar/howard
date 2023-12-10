@@ -7,6 +7,7 @@ import Ray
 import Sphere
 import Vec3 (minusVec3)
 import Hittable
+import Hittable (HitRecord(HitRecord), HittableList (HittableList))
 
 
 
@@ -22,6 +23,8 @@ main = do
         view_port_height = 2.0
         view_port_width = view_port_height * (fromIntegral image_width / fromIntegral image_height)
         camera_center = Vec3 0 0 0
+
+        world = HittableList [Sphere (Vec3 0 0 (-1)) 0.5, Sphere (Vec3 0 (-100.5) (-1)) 100]
 
     let view_port_u = Vec3 view_port_width 0 0
         view_port_v = Vec3 0 (-view_port_height) 0
@@ -39,9 +42,9 @@ main = do
                 ray_direction = pixel_center `minusVec3` camera_center
 
                 r = Ray camera_center ray_direction
-                pixel_color = rayColor r
+                pixel_color = rayColor r world
 
-            writeColor pixel_color
+            writeColor pixel_color 
         ) [0..image_width-1]) [0..image_height-1]
 
 -- rayColor :: Ray -> Vec3
@@ -56,16 +59,13 @@ main = do
 --                                     a = (y unit_direction + 1.0) * 0.5
 --                                     ret = (Vec3 1.0 1.0 1.0 `multiplyVec3` (1.0 - a)) `addVec3` (Vec3 0.5 0.7 1.0 `multiplyVec3` a)
 
-rayColor :: Ray -> a -> Vec3
-rayColor (Ray org dir) world
-        | isHit != Nothing = retHit
-        | otherwise = ret
+rayColor :: Hittable a => Ray -> a -> Vec3
+rayColor (Ray org dir) world = ret
                 where
                     tempRecord = HitRecord (Vec3 0 0 0 ) (Vec3 0 0 0 ) 0 False
-                    isHit = hit (Ray org dir) 0 999999 tempRecord
-                        case isHit of
-                            Nothing -> 
-                    retHit = (n isHit `addVec3` Vec3 1 1 1) `multiplyVec3` 0.5
+                    isHit = hit (Ray org dir) 0 999999 (Just tempRecord) world
                     unit_direction = unitVector dir
                     a = (y unit_direction + 1.0) * 0.5
-                    ret = (Vec3 1.0 1.0 1.0 `multiplyVec3` (1.0 - a)) `addVec3` (Vec3 0.5 0.7 1.0 `multiplyVec3` a)
+                    ret = case isHit of
+                        Nothing -> (Vec3 1.0 1.0 1.0 `multiplyVec3` (1.0 - a)) `addVec3` (Vec3 0.5 0.7 1.0 `multiplyVec3` a)
+                        Just yesHit -> (n yesHit `addVec3` Vec3 1 1 1) `multiplyVec3` 0.5
