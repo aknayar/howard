@@ -17,10 +17,10 @@ data Camera = Camera
     } deriving Show
 
 initialize :: Double -> Int -> Camera
-initialize aspect width = Camera aspect width height center pixel100 deltaU deltaV
+initialize aspect width = Camera aspect width height cent pixel100 deltaU deltaV
                             where
                                 height = max 1 (floor $ fromIntegral width / aspect)
-                                center = Vec3 0 0 0
+                                cent = Vec3 0 0 0
                                 focalLength = 1.0
                                 viewPortHeight = 2.0
                                 viewPortWidth = viewPortHeight * (fromIntegral width / fromIntegral height)
@@ -31,7 +31,7 @@ initialize aspect width = Camera aspect width height center pixel100 deltaU delt
                                 deltaU = viewPortU `divideVec3` fromIntegral width
                                 deltaV = viewPortV `divideVec3` fromIntegral height
 
-                                viewPortUpperLeft = center `minusVec3` Vec3 0 0 focalLength `minusVec3` (viewPortU `divideVec3` 2) `minusVec3` (viewPortV `divideVec3` 2)
+                                viewPortUpperLeft = cent `minusVec3` Vec3 0 0 focalLength `minusVec3` (viewPortU `divideVec3` 2) `minusVec3` (viewPortV `divideVec3` 2)
                                 pixel100 = viewPortUpperLeft `addVec3` ((deltaU `addVec3` deltaV) `multiplyVec3` 0.5)
                                 
 rayColor :: Hittable a => Ray -> a -> Vec3
