@@ -5,22 +5,26 @@ import Ray
 import Hittable
 import Interval
 import Color
+import Utilities
+import System.Random (mkStdGen, StdGen)
 data Camera = Camera 
     {
         aspectRatio :: Double,
         imageWidth :: Int,
         imageHeight:: Int,
+        samplesPerPixel :: Int,
         center :: Vec3,
         pixel100Loc :: Vec3,
         pixelDeltaU :: Vec3,
         pixelDeltaV :: Vec3
     } deriving Show
 
-initialize :: Double -> Int -> Camera
-initialize aspect width = Camera aspect width height center pixel100 deltaU deltaV
+
+initialize :: Double -> Int -> Int -> Camera
+initialize aspect width samples = Camera aspect width height samples cent pixel100 deltaU deltaV
                             where
                                 height = max 1 (floor $ fromIntegral width / aspect)
-                                center = Vec3 0 0 0
+                                cent = Vec3 0 0 0
                                 focalLength = 1.0
                                 viewPortHeight = 2.0
                                 viewPortWidth = viewPortHeight * (fromIntegral width / fromIntegral height)
@@ -31,7 +35,7 @@ initialize aspect width = Camera aspect width height center pixel100 deltaU delt
                                 deltaU = viewPortU `divideVec3` fromIntegral width
                                 deltaV = viewPortV `divideVec3` fromIntegral height
 
-                                viewPortUpperLeft = center `minusVec3` Vec3 0 0 focalLength `minusVec3` (viewPortU `divideVec3` 2) `minusVec3` (viewPortV `divideVec3` 2)
+                                viewPortUpperLeft = cent `minusVec3` Vec3 0 0 focalLength `minusVec3` (viewPortU `divideVec3` 2) `minusVec3` (viewPortV `divideVec3` 2)
                                 pixel100 = viewPortUpperLeft `addVec3` ((deltaU `addVec3` deltaV) `multiplyVec3` 0.5)
                                 
 rayColor :: Hittable a => Ray -> a -> Vec3
@@ -48,13 +52,33 @@ rayColor (Ray org dir) world = ret
 render :: Hittable a => Camera -> a -> IO()
 render cam world = do
                 putStrLn $ "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255"
-
                 mapM_ (\j -> mapM_ (\i -> do
-                        let pixel_center = pixel100Loc cam `addVec3` (pixelDeltaU cam`multiplyVec3` fromIntegral i) `addVec3` (pixelDeltaV cam `multiplyVec3` fromIntegral j)
-                            ray_direction = pixel_center `minusVec3` center cam
-
-                            r = Ray (center cam) ray_direction
-                            pixel_color = rayColor r world
-
-                        writeColor pixel_color 
+                        let pixelColor = updateColor (samplesPerPixel cam) (Vec3 0 0 0) i j cam world
+                        writeColor pixelColor (samplesPerPixel cam)
                     ) [0..imageWidth cam -1]) [0..imageHeight cam-1]
+
+updateColor :: Hittable a => Int -> Vec3 -> Int -> Int -> Camera -> a -> Vec3
+updateColor 0 x _ _ _ _    = x
+updateColor samples cur i j cam world = updateColor (samples - 1) next i j cam world
+                                            where
+                                                r = getRay cam i j (mkStdGen (i * samples * (imageHeight cam-1) + j))
+                                                next = cur `addVec3` rayColor r world
+    
+getRay :: Camera -> Int -> Int -> StdGen -> Ray
+getRay cam i j g = Ray org dir
+                where
+                    pixelCenter = pixel100Loc cam `addVec3` (pixelDeltaU cam `multiplyVec3` fromIntegral i) `addVec3` (pixelDeltaV cam `multiplyVec3` fromIntegral j)
+                    (pss, g2) = pixelSampleSquare cam g
+                    pixelSample = pixelCenter `addVec3` pss
+
+                    org = center cam
+                    dir = pixelSample `minusVec3` org
+
+pixelSampleSquare :: Camera -> StdGen -> (Vec3, StdGen)
+pixelSampleSquare cam g = res
+                    where
+                        px = -0.5 + d
+                        py = -0.5 + d1
+                        (d, g1) = randomDouble g
+                        (d1,g2) = randomDouble g1
+                        res = ((pixelDeltaU cam `multiplyVec3` px) `addVec3` (pixelDeltaV cam `multiplyVec3` py), g2)
