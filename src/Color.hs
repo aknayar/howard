@@ -12,8 +12,8 @@ writeColor (Vec3 r g b) samples = do
                     bScaled = b * scale
 
                     range = Interval 0.000 0.999
-                    ir = 256 * clamp range r
-                    ig = 256 * clamp range g
-                    ib = 256 * clamp range b
+                    ir = 256 * clamp range rScaled
+                    ig = 256 * clamp range gScaled
+                    ib = 256 * clamp range bScaled
                 
                 putStrLn $ show ir ++ " " ++ show ig ++ " " ++ show ib

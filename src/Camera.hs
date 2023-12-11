@@ -59,7 +59,7 @@ render cam world = do
                     ) [0..imageWidth cam -1]) [0..imageHeight cam-1]
 
 updateColor :: Hittable a => Int -> Vec3 -> Ray -> Camera -> a -> Vec3
-updateColor 0 x _ _ _  = x
+updateColor 0 x _ _ _   = x
 updateColor samples cur r cam world = updateColor (samples - 1) next r cam world
                                             where
                                                 next = cur `addVec3` rayColor r world
