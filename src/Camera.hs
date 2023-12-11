@@ -53,15 +53,15 @@ render :: Hittable a => Camera -> a -> IO()
 render cam world = do
                 putStrLn $ "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255"
                 mapM_ (\j -> mapM_ (\i -> do
-                        let r = getRay cam i j (mkStdGen (i * (imageHeight cam-1) + j))
-                            pixelColor = updateColor (samplesPerPixel cam) (Vec3 0 0 0) r cam world
+                        let pixelColor = updateColor (samplesPerPixel cam) (Vec3 0 0 0) i j cam world
                         writeColor pixelColor (samplesPerPixel cam)
                     ) [0..imageWidth cam -1]) [0..imageHeight cam-1]
 
-updateColor :: Hittable a => Int -> Vec3 -> Ray -> Camera -> a -> Vec3
-updateColor 0 x _ _ _   = x
-updateColor samples cur r cam world = updateColor (samples - 1) next r cam world
+updateColor :: Hittable a => Int -> Vec3 -> Int -> Int -> Camera -> a -> Vec3
+updateColor 0 x _ _ _ _    = x
+updateColor samples cur i j cam world = updateColor (samples - 1) next i j cam world
                                             where
+                                                r = getRay cam i j (mkStdGen (i * samples * (imageHeight cam-1) + j))
                                                 next = cur `addVec3` rayColor r world
     
 getRay :: Camera -> Int -> Int -> StdGen -> Ray
