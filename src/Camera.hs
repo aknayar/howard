@@ -52,7 +52,7 @@ rayColor (Ray org dir) world i g = ret
                         Just yesHit -> (v `multiplyVec3` 0.5, g2)
                             where
                                 (direction, g1) = randomOnHemisphere g (n yesHit)
-                                (v, g2) = (rayColor (Ray (p yesHit) direction) world (i - 1) g1)
+                                (v, g2) = (rayColor (Ray (p yesHit) (direction `addVec3` n yesHit)) world (i - 1) g1)
 
 render :: Hittable a => Camera -> a -> IO()
 render cam world = do
