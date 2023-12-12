@@ -5,7 +5,10 @@ import Ray
 import Data.Maybe (fromMaybe)
 import Interval
 
-data HitRecord = HitRecord { p :: Vec3, n :: Vec3, t :: Double, front_face :: Bool }
+class Material a where
+  scatter :: Ray -> Maybe HitRecord -> Vec3 -> Ray -> a -> Maybe HitRecord
+
+data HitRecord = HitRecord { p :: Vec3, n :: Vec3, mat :: Material, t :: Double, front_face :: Bool }
 
 setFaceNormal :: Ray -> Vec3 -> HitRecord -> HitRecord
 setFaceNormal r outward_normal original =
