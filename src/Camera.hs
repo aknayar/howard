@@ -38,31 +38,35 @@ initialize aspect width samples = Camera aspect width height samples cent pixel1
                                 viewPortUpperLeft = cent `minusVec3` Vec3 0 0 focalLength `minusVec3` (viewPortU `divideVec3` 2) `minusVec3` (viewPortV `divideVec3` 2)
                                 pixel100 = viewPortUpperLeft `addVec3` ((deltaU `addVec3` deltaV) `multiplyVec3` 0.5)
                                 
-rayColor :: Hittable a => Ray -> a -> Vec3
-rayColor (Ray org dir) world = ret
+rayColor :: Hittable a => Ray -> a -> StdGen -> (Vec3, StdGen)
+rayColor (Ray org dir) world g = ret
                 where
                     tempRecord = HitRecord (Vec3 0 0 0 ) (Vec3 0 0 0 ) 0 False
                     isHit = hit (Ray org dir) (Interval 0 9999999) (Just tempRecord) world
                     unit_direction = unitVector dir
                     a = (y unit_direction + 1.0) * 0.5
                     ret = case isHit of
-                        Nothing -> (Vec3 1.0 1.0 1.0 `multiplyVec3` (1.0 - a)) `addVec3` (Vec3 0.5 0.7 1.0 `multiplyVec3` a)
-                        Just yesHit -> (n yesHit `addVec3` Vec3 1 1 1) `multiplyVec3` 0.5
+                        Nothing -> ((Vec3 1.0 1.0 1.0 `multiplyVec3` (1.0 - a)) `addVec3` (Vec3 0.5 0.7 1.0 `multiplyVec3` a), g)
+                        Just yesHit -> (v `multiplyVec3` 0.5, g2)
+                            where
+                                (direction, g1) = randomOnHemisphere g (n yesHit)
+                                (v, g2) = (rayColor (Ray (p yesHit) direction) world g1)
 
 render :: Hittable a => Camera -> a -> IO()
 render cam world = do
                 putStrLn $ "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255"
                 mapM_ (\j -> mapM_ (\i -> do
-                        let pixelColor = updateColor (samplesPerPixel cam) (Vec3 0 0 0) i j cam world
+                        let (pixelColor, _) = updateColor (samplesPerPixel cam) (Vec3 0 0 0) i j cam world (mkStdGen (i * (imageHeight cam - 1) + j))
                         writeColor pixelColor (samplesPerPixel cam)
                     ) [0..imageWidth cam -1]) [0..imageHeight cam-1]
 
-updateColor :: Hittable a => Int -> Vec3 -> Int -> Int -> Camera -> a -> Vec3
-updateColor 0 x _ _ _ _    = x
-updateColor samples cur i j cam world = updateColor (samples - 1) next i j cam world
+updateColor :: Hittable a => Int -> Vec3 -> Int -> Int -> Camera -> a -> StdGen -> (Vec3, StdGen)
+updateColor 0 x _ _ _ _ g = (x, g)
+updateColor samples cur i j cam world g = updateColor (samples - 1) next i j cam world g1
                                             where
                                                 r = getRay cam i j (mkStdGen (i * samples * (imageHeight cam-1) + j))
-                                                next = cur `addVec3` rayColor r world
+                                                (rc, g1) = rayColor r world g
+                                                next = cur `addVec3` rc
     
 getRay :: Camera -> Int -> Int -> StdGen -> Ray
 getRay cam i j g = Ray org dir
