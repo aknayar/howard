@@ -53,7 +53,7 @@ randomInUnitSphere g
  | lengthSquaredVec3 v <= 1 = (v, g1)
  | otherwise = randomInUnitSphere g1 
     where
-        (v, g1) = randomVec3 g
+        (v, g1) = randomVec3R (-1.0 ) 1.0 g
 
 randomUnitVector :: StdGen -> (Vec3, StdGen)
 randomUnitVector g = (unitVector v, g1)
