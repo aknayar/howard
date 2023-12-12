@@ -16,12 +16,13 @@ data Camera = Camera
         center :: Vec3,
         pixel100Loc :: Vec3,
         pixelDeltaU :: Vec3,
-        pixelDeltaV :: Vec3
+        pixelDeltaV :: Vec3,
+        maxDepth :: Int
     } deriving Show
 
 
 initialize :: Double -> Int -> Int -> Camera
-initialize aspect width samples = Camera aspect width height samples cent pixel100 deltaU deltaV
+initialize aspect width samples = Camera aspect width height samples cent pixel100 deltaU deltaV 50
                             where
                                 height = max 1 (floor $ fromIntegral width / aspect)
                                 cent = Vec3 0 0 0
@@ -38,8 +39,9 @@ initialize aspect width samples = Camera aspect width height samples cent pixel1
                                 viewPortUpperLeft = cent `minusVec3` Vec3 0 0 focalLength `minusVec3` (viewPortU `divideVec3` 2) `minusVec3` (viewPortV `divideVec3` 2)
                                 pixel100 = viewPortUpperLeft `addVec3` ((deltaU `addVec3` deltaV) `multiplyVec3` 0.5)
                                 
-rayColor :: Hittable a => Ray -> a -> StdGen -> (Vec3, StdGen)
-rayColor (Ray org dir) world g = ret
+rayColor :: Hittable a => Ray -> a -> Int -> StdGen -> (Vec3, StdGen)
+rayColor _ _ 0 g = (Vec3 0 0 0, g)
+rayColor (Ray org dir) world i g = ret
                 where
                     tempRecord = HitRecord (Vec3 0 0 0 ) (Vec3 0 0 0 ) 0 False
                     isHit = hit (Ray org dir) (Interval 0 9999999) (Just tempRecord) world
@@ -50,7 +52,7 @@ rayColor (Ray org dir) world g = ret
                         Just yesHit -> (v `multiplyVec3` 0.5, g2)
                             where
                                 (direction, g1) = randomOnHemisphere g (n yesHit)
-                                (v, g2) = (rayColor (Ray (p yesHit) direction) world g1)
+                                (v, g2) = (rayColor (Ray (p yesHit) direction) world (i - 1) g1)
 
 render :: Hittable a => Camera -> a -> IO()
 render cam world = do
@@ -65,7 +67,7 @@ updateColor 0 x _ _ _ _ g = (x, g)
 updateColor samples cur i j cam world g = updateColor (samples - 1) next i j cam world g1
                                             where
                                                 r = getRay cam i j (mkStdGen (i * samples * (imageHeight cam-1) + j))
-                                                (rc, g1) = rayColor r world g
+                                                (rc, g1) = rayColor r world (maxDepth cam) g
                                                 next = cur `addVec3` rc
     
 getRay :: Camera -> Int -> Int -> StdGen -> Ray
