@@ -1,5 +1,7 @@
 module Vec3 where
 
+import System.Random
+
 data Vec3 = Vec3
     {
         x :: Double,

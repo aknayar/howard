@@ -24,4 +24,9 @@ randomVec3R rand_min rand_max g =
             (y, g2) = randomDoubleR rand_min rand_max g2
             (z, g3) = randomDoubleR rand_min rand_max g3
 
--- randomInUnitSphere :: StdGen Vec3
+randomInUnitSphere ::  StdGen -> (Vec3, StdGen)
+randomInUnitSphere g 
+ | lengthSquaredVec3 v <= 1 = (v, g1)
+ | otherwise = randomInUnitSphere g1 
+    where
+        (v, g1) = randomVec3 g
