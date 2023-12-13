@@ -79,4 +79,11 @@ nearZero (Vec3 a b c) =
         where s = 1e-8
 
 reflect :: Vec3 -> Vec3 -> Vec3
-reflect v n = v `minusVec3` (n `multiplyVec3` (2 * ((v `dot` n))))
+reflect v n = v `minusVec3` (n `multiplyVec3` (2 * (v `dot` n)))
+
+refract :: Vec3 -> Vec3 -> Double -> Vec3
+refract uv n refrac = rOutPerp `addVec3` rOutParallel
+                    where 
+                        cosTheta = min (negateVec3 uv `dot` n) 1.0
+                        rOutPerp = (uv `addVec3` (n `multiplyVec3` cosTheta)) `multiplyVec3` refrac
+                        rOutParallel = n `multiplyVec3` ((-1) * sqrt (abs (1.0 - (lengthSquaredVec3 rOutPerp))))
