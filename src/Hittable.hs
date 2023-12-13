@@ -6,13 +6,23 @@ import Vec3
 import Ray
 import Data.Maybe (fromMaybe)
 import Interval
+import Utilities
+import System.Random
 
 class Material a where
-  scatter :: Ray -> HitRecord -> Vec3 -> Ray -> a -> Maybe HitRecord
+    scatter :: Ray -> HitRecord -> Vec3 -> Ray -> StdGen -> a ->  (Ray, Vec3, StdGen)
 
 data Lambertian = Lambertian Vec3
 instance Material Lambertian where
-  scatter ray record attenuation scattered (Lambertian albedo) = Just record
+    scatter ray record attenuation scattered g (Lambertian albedo) = 
+        (r, att, g1)
+            where
+                (rand, g1) = randomUnitVector g
+                scatter_direction = (n record) `addVec3` rand
+                r = Ray (p record) scatter_direction
+                att = albedo
+
+
 
 data HitRecord = forall a. Material a => HitRecord { p :: Vec3, n :: Vec3, mat :: a, t :: Double, front_face :: Bool }
 
