@@ -14,8 +14,6 @@ data Lambertian = Lambertian Vec3
 instance Material Lambertian where
   scatter ray record attenuation scattered (Lambertian albedo) = Just record
 
--- newtype Material a = Material a
-
 data HitRecord = forall a. Material a => HitRecord { p :: Vec3, n :: Vec3, mat :: a, t :: Double, front_face :: Bool }
 
 setFaceNormal :: Ray -> Vec3 -> HitRecord -> HitRecord
@@ -30,13 +28,6 @@ class Hittable a where
 
 newtype HittableList a = HittableList [a]
 
--- clearHittableList :: HittableList
--- clearHittableList = HittableList []
-
--- addHittableList :: HittableList -> a -> HittableList
--- addHittableList (HittableList l) h = HittableList (l : h)
-
-
 instance Hittable a => Hittable (HittableList a) where
     hit ray range record (HittableList items) = record
         where
@@ -46,13 +37,3 @@ instance Hittable a => Hittable (HittableList a) where
                         record <- hit ray range record i
                         return (Just record, t record)
             record = fst $ foldr reduce (Nothing, t_max range) items
-
--- instance Hittable a => Hittable (HittableList a) where
---     hit r ray_tmin ray_tmax (HittableList objects) = record
---         where
---             reduce i (r', current_max) = fromMaybe (r, current_max) m
---                 where
---                     m = do
---                         record <- hit r ray_tmin current_max i
---                         return (Just record, t record)
---             record = fst $ foldr reduce (Nothing, ray_tmax) objects

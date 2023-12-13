@@ -48,16 +48,6 @@ instance Hittable Sphere where
                     (_, True) -> Just $ updateHitRecord root2 (HitRecord (p new_record) (n new_record) (Lambertian (Vec3 0 0 0)) root2 new_front_face)
                     _ -> Nothing
 
-
-            -- let
-        --     oc = origin r `minusVec3` (center s)
-        --     a = direction r `dot` direction r
-        --     half_b = oc `dot` direction r
-        --     c = (oc `dot` oc) - (radius s * radius s)
-        --     discriminant = half_b*half_b - a*c
-
-
-
 hitSphere :: Vec3 -> Double -> Ray -> Double
 hitSphere center radius ray =
                             let
