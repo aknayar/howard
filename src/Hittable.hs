@@ -15,22 +15,17 @@ class Material a where
 data Lambertian = Lambertian Vec3
 instance Material Lambertian where
     scatter ray record g (Lambertian albedo) = 
-        (r, att, g1)
+        (Ray (p record) scatter_direction, albedo, g1)
             where
                 (rand, g1) = randomUnitVector g
                 scatter_direction = if (nearZero rand) then (n record) else ((n record) `addVec3` rand)
-                r = Ray (p record) scatter_direction
-                att = albedo
-
 
 data Metal = Metal Vec3
 instance Material Metal where
     scatter ray record g (Metal albedo) = 
-        (r, att, g)
+        (Ray (p record) reflected, albedo, g)
             where
                 reflected = reflect (unitVector (direction ray)) (n record)
-                r = Ray (p record) reflected
-                att = albedo
 
 data HitRecord = forall a. Material a => HitRecord { p :: Vec3, n :: Vec3, mat :: a, t :: Double, front_face :: Bool }
 

@@ -49,9 +49,9 @@ rayColor (Ray org dir) world i g = ret
                     a = (y unit_direction + 1.0) * 0.5
                     ret = case isHit of
                         Nothing -> ((Vec3 1.0 1.0 1.0 `multiplyVec3` (1.0 - a)) `addVec3` (Vec3 0.5 0.7 1.0 `multiplyVec3` a), g)
-                        Just (HitRecord p n m t ff) -> (attenuation `multiplyVec3` v, g1)
+                        Just (HitRecord p2 n2 m t2 ff) -> (attenuation `multiplyVec3` v, g2)
                             where
-                                (scattered, attenuation, g1) = scatter (Ray org dir) (HitRecord p n m t ff) g m
+                                (scattered, attenuation, g1) = scatter (Ray org dir) (HitRecord p2 n2 m t2 ff) g m
                                 (v, g2) = (rayColor scattered world (i - 1) g1)
 
 render :: Hittable a => Camera -> a -> IO()
@@ -64,17 +64,17 @@ render cam world = do
 
 updateColor :: Hittable a => Int -> Vec3 -> Int -> Int -> Camera -> a -> StdGen -> (Vec3, StdGen)
 updateColor 0 x _ _ _ _ g = (x, g)
-updateColor samples cur i j cam world g = updateColor (samples - 1) next i j cam world g1
+updateColor samples cur i j cam world g = updateColor (samples - 1) next i j cam world g2
                                             where
-                                                r = getRay cam i j (mkStdGen (i * samples * (imageHeight cam-1) + j))
-                                                (rc, g1) = rayColor r world (maxDepth cam) g
+                                                (r, g1) = getRay cam i j (mkStdGen (i * samples * (imageHeight cam-1) + j))
+                                                (rc, g2) = rayColor r world (maxDepth cam) g1
                                                 next = cur `addVec3` rc
     
-getRay :: Camera -> Int -> Int -> StdGen -> Ray
-getRay cam i j g = Ray org dir
+getRay :: Camera -> Int -> Int -> StdGen -> (Ray, StdGen)
+getRay cam i j g = (Ray org dir, g1)
                 where
                     pixelCenter = pixel100Loc cam `addVec3` (pixelDeltaU cam `multiplyVec3` (fromIntegral i :: Double)) `addVec3` (pixelDeltaV cam `multiplyVec3` (fromIntegral j :: Double))
-                    (pss, g2) = pixelSampleSquare cam g
+                    (pss, g1) = pixelSampleSquare cam g
                     pixelSample = pixelCenter `addVec3` pss
 
                     org = center cam
