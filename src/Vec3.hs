@@ -66,3 +66,11 @@ randomOnHemisphere g n
  | otherwise = (negateVec3 onUnitSphere, g1)
     where
         (onUnitSphere, g1) = randomUnitVector g
+
+nearZero :: Vec3 -> Bool
+nearZero (Vec3 a b c) = 
+    (abs a < s) && (abs b < s) && (abs c < s)
+        where s = 1e-8
+
+reflect :: Vec3 -> Vec3 -> Vec3
+reflect v n = v `minusVec3` (n `multiplyVec3` (2 * ((v `dot` n))))

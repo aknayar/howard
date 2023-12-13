@@ -18,8 +18,18 @@ instance Material Lambertian where
         (r, att, g1)
             where
                 (rand, g1) = randomUnitVector g
-                scatter_direction = (n record) `addVec3` rand
+                scatter_direction = if (nearZero rand) then (n record) else ((n record) `addVec3` rand)
                 r = Ray (p record) scatter_direction
+                att = albedo
+
+
+data Metal = Metal Vec3
+instance Material Metal where
+    scatter ray record attenuation scattered g (Metal albedo) = 
+        (r, att, g)
+            where
+                reflected = reflect (unitVector (direction ray)) (n record)
+                r = Ray (p record) reflected
                 att = albedo
 
 
