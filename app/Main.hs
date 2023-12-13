@@ -1,12 +1,8 @@
 module Main (main) where
 
-import Lib
 import Vec3
-import Color
-import Ray
 import Sphere
 import Hittable
-import Interval
 import Camera
 
 
