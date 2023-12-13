@@ -10,6 +10,10 @@ import Interval
 class Material a where
   scatter :: Ray -> HitRecord -> Vec3 -> Ray -> a -> Maybe HitRecord
 
+data Lambertian = Lambertian Vec3
+instance Material Lambertian where
+  scatter ray record attenuation scattered (Lambertian albedo) = Just record
+
 -- newtype Material a = Material a
 
 data HitRecord = forall a. Material a => HitRecord { p :: Vec3, n :: Vec3, mat :: a, t :: Double, front_face :: Bool }
