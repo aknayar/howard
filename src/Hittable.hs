@@ -7,13 +7,16 @@ import Ray
 import Data.Maybe (fromMaybe)
 import Interval
 
-data Material = forall a. Material a
+class Material a where
+  scatter :: Ray -> HitRecord -> Vec3 -> Ray -> a -> Maybe HitRecord
 
-data HitRecord = HitRecord { p :: Vec3, n :: Vec3, mat :: Material, t :: Double, front_face :: Bool }
+-- newtype Material a = Material a
+
+data HitRecord = forall a. Material a => HitRecord { p :: Vec3, n :: Vec3, mat :: a, t :: Double, front_face :: Bool }
 
 setFaceNormal :: Ray -> Vec3 -> HitRecord -> HitRecord
-setFaceNormal r outward_normal original =
-  HitRecord (p original) new_normal (mat original) (t original) new_front_face
+setFaceNormal r outward_normal (HitRecord pOriginal _ matOriginal tOriginal _) =
+  HitRecord pOriginal new_normal matOriginal tOriginal new_front_face
     where
       new_front_face = direction r `dot` outward_normal < 0
       new_normal = if new_front_face then outward_normal else negateVec3 outward_normal
