@@ -10,22 +10,24 @@ import Utilities
 import System.Random
 
 class Material a where
-    scatter :: Ray -> HitRecord -> StdGen -> a ->  (Ray, Vec3, StdGen)
+    scatter :: Ray -> HitRecord -> StdGen -> a ->  (Maybe (Ray, Vec3), StdGen)
 
 data Lambertian = Lambertian Vec3
 instance Material Lambertian where
     scatter ray record g (Lambertian albedo) = 
-        (Ray (p record) scatter_direction, albedo, g1)
+        (Just (Ray (p record) scatter_direction, albedo), g1)
             where
                 (rand, g1) = randomUnitVector g
                 scatter_direction = if (nearZero rand) then (n record) else ((n record) `addVec3` rand)
 
-data Metal = Metal Vec3
+data Metal = Metal Vec3 Double
 instance Material Metal where
-    scatter ray record g (Metal albedo) = 
-        (Ray (p record) reflected, albedo, g)
+    scatter ray record g (Metal albedo fuzz) = 
+        if ((direction scattered) `dot` (n record) > 0) then (Just (scattered, albedo), g1) else (Nothing, g1)
             where
                 reflected = reflect (unitVector (direction ray)) (n record)
+                (rand, g1) = randomUnitVector g
+                scattered = (Ray (p record) (reflected `addVec3` (rand `multiplyVec3` fuzz)))
 
 data HitRecord = forall a. Material a => HitRecord { p :: Vec3, n :: Vec3, mat :: a, t :: Double, front_face :: Bool }
 
