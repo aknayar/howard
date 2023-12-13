@@ -32,8 +32,6 @@ instance Material Metal where
                 r = Ray (p record) reflected
                 att = albedo
 
-
-
 data HitRecord = forall a. Material a => HitRecord { p :: Vec3, n :: Vec3, mat :: a, t :: Double, front_face :: Bool }
 
 setFaceNormal :: Ray -> Vec3 -> HitRecord -> HitRecord
