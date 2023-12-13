@@ -16,8 +16,14 @@ negateVec3 (Vec3 x y z) = Vec3 (-x) (-y) (-z)
 addVec3 :: Vec3 -> Vec3 -> Vec3
 addVec3 (Vec3 u1 u2 u3) (Vec3 v1 v2 v3) = Vec3 (u1 + v1) (u2 + v2) (u3 + v3)
 
-multiplyVec3 :: Vec3 -> Double -> Vec3
-multiplyVec3 (Vec3 x y z) t = Vec3 (x * t) (y * t) (z * t)
+class MultiplyVec3 a where
+    multiplyVec3 :: Vec3 -> a -> Vec3
+
+instance MultiplyVec3 Double where
+    multiplyVec3 (Vec3 x y z) t = Vec3 (x * t) (y * t) (z * t)
+
+instance MultiplyVec3 Vec3 where
+    multiplyVec3 (Vec3 a b c) (Vec3 x y z)  = Vec3 (a * x) (b * y) (c * z)
 
 minusVec3 :: Vec3 -> Vec3 -> Vec3
 minusVec3 (Vec3 u1 u2 u3) (Vec3 v1 v2 v3) = Vec3 (u1 - v1) (u2 - v2) (u3 - v3)
@@ -66,3 +72,11 @@ randomOnHemisphere g n
  | otherwise = (negateVec3 onUnitSphere, g1)
     where
         (onUnitSphere, g1) = randomUnitVector g
+
+nearZero :: Vec3 -> Bool
+nearZero (Vec3 a b c) = 
+    (abs a < s) && (abs b < s) && (abs c < s)
+        where s = 1e-8
+
+reflect :: Vec3 -> Vec3 -> Vec3
+reflect v n = v `minusVec3` (n `multiplyVec3` (2 * ((v `dot` n))))

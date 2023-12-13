@@ -37,22 +37,22 @@ initialize aspect width samples = Camera aspect width height samples cent pixel1
                                 deltaV = viewPortV `divideVec3` fromIntegral height
 
                                 viewPortUpperLeft = cent `minusVec3` Vec3 0 0 focalLength `minusVec3` (viewPortU `divideVec3` 2) `minusVec3` (viewPortV `divideVec3` 2)
-                                pixel100 = viewPortUpperLeft `addVec3` ((deltaU `addVec3` deltaV) `multiplyVec3` 0.5)
+                                pixel100 = viewPortUpperLeft `addVec3` ((deltaU `addVec3` deltaV) `multiplyVec3` (0.5 :: Double))
                                 
 rayColor :: Hittable a => Ray -> a -> Int -> StdGen -> (Vec3, StdGen)
 rayColor _ _ 0 g = (Vec3 0 0 0, g)
 rayColor (Ray org dir) world i g = ret
                 where
-                    tempRecord = HitRecord (Vec3 0 0 0 ) (Vec3 0 0 0 ) 0 False
+                    tempRecord = HitRecord (Vec3 0 0 0 ) (Vec3 0 0 0 ) (Lambertian (Vec3 0 0 0))  0 False
                     isHit = hit (Ray org dir) (Interval 0.001 9999999999999) (Just tempRecord) world
                     unit_direction = unitVector dir
                     a = (y unit_direction + 1.0) * 0.5
                     ret = case isHit of
                         Nothing -> ((Vec3 1.0 1.0 1.0 `multiplyVec3` (1.0 - a)) `addVec3` (Vec3 0.5 0.7 1.0 `multiplyVec3` a), g)
-                        Just yesHit -> (v `multiplyVec3` 0.5, g2)
+                        Just (HitRecord p2 n2 m t2 ff) -> (attenuation `multiplyVec3` v, g2)
                             where
-                                (direction, g1) = randomOnHemisphere g (n yesHit)
-                                (v, g2) = (rayColor (Ray (p yesHit) (direction `addVec3` n yesHit)) world (i - 1) g1)
+                                (scattered, attenuation, g1) = scatter (Ray org dir) (HitRecord p2 n2 m t2 ff) g m
+                                (v, g2) = (rayColor scattered world (i - 1) g1)
 
 render :: Hittable a => Camera -> a -> IO()
 render cam world = do
@@ -64,17 +64,17 @@ render cam world = do
 
 updateColor :: Hittable a => Int -> Vec3 -> Int -> Int -> Camera -> a -> StdGen -> (Vec3, StdGen)
 updateColor 0 x _ _ _ _ g = (x, g)
-updateColor samples cur i j cam world g = updateColor (samples - 1) next i j cam world g1
+updateColor samples cur i j cam world g = updateColor (samples - 1) next i j cam world g2
                                             where
-                                                r = getRay cam i j (mkStdGen (i * samples * (imageHeight cam-1) + j))
-                                                (rc, g1) = rayColor r world (maxDepth cam) g
+                                                (r, g1) = getRay cam i j (mkStdGen (i * samples * (imageHeight cam-1) + j))
+                                                (rc, g2) = rayColor r world (maxDepth cam) g1
                                                 next = cur `addVec3` rc
     
-getRay :: Camera -> Int -> Int -> StdGen -> Ray
-getRay cam i j g = Ray org dir
+getRay :: Camera -> Int -> Int -> StdGen -> (Ray, StdGen)
+getRay cam i j g = (Ray org dir, g1)
                 where
-                    pixelCenter = pixel100Loc cam `addVec3` (pixelDeltaU cam `multiplyVec3` fromIntegral i) `addVec3` (pixelDeltaV cam `multiplyVec3` fromIntegral j)
-                    (pss, g2) = pixelSampleSquare cam g
+                    pixelCenter = pixel100Loc cam `addVec3` (pixelDeltaU cam `multiplyVec3` (fromIntegral i :: Double)) `addVec3` (pixelDeltaV cam `multiplyVec3` (fromIntegral j :: Double))
+                    (pss, g1) = pixelSampleSquare cam g
                     pixelSample = pixelCenter `addVec3` pss
 
                     org = center cam
