@@ -66,7 +66,7 @@ updateColor :: Hittable a => Int -> Vec3 -> Int -> Int -> Camera -> a -> StdGen 
 updateColor 0 x _ _ _ _ g = (x, g)
 updateColor samples cur i j cam world g = updateColor (samples - 1) next i j cam world g2
                                             where
-                                                (r, g1) = getRay cam i j (mkStdGen (i * samples * (imageHeight cam-1) + j))
+                                                (r, g1) = getRay cam i j g
                                                 (rc, g2) = rayColor r world (maxDepth cam) g1
                                                 next = cur `addVec3` rc
     
