@@ -32,17 +32,19 @@ instance Material Metal where
 data Dielectric = Dielectric Double
 instance Material Dielectric where
     scatter ray record g (Dielectric ir) =
-        (Ray (p record) refracted, color, g)
+        scattered
             where
                 color = Vec3 1.0 1.0 1.0
-                refractionRatio = case (front_face record) of
-                    True -> (1.0 / ir)
-                    False -> ir
+                refractionRatio = if front_face record then 1.0 / ir else ir
 
                 unitDirection = unitVector (direction ray)
-                refracted = refract unitDirection (n record) refractionRatio
 
-                
+                cosTheta = min (negateVec3 unitDirection `dot` n record) 1.0
+                sinTheta = sqrt (1.0 - cosTheta * cosTheta)
+
+                cannotRefract = refractionRatio * sinTheta > 1.0
+
+                scattered = if cannotRefract then (Ray (p record) (reflect unitDirection (n record)), color, g) else (Ray (p record) (refract unitDirection (n record) refractionRatio), color, g)
 
 
 
