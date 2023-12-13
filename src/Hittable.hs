@@ -10,11 +10,11 @@ import Utilities
 import System.Random
 
 class Material a where
-    scatter :: Ray -> HitRecord -> Vec3 -> Ray -> StdGen -> a ->  (Ray, Vec3, StdGen)
+    scatter :: Ray -> HitRecord -> StdGen -> a ->  (Ray, Vec3, StdGen)
 
 data Lambertian = Lambertian Vec3
 instance Material Lambertian where
-    scatter ray record attenuation scattered g (Lambertian albedo) = 
+    scatter ray record g (Lambertian albedo) = 
         (r, att, g1)
             where
                 (rand, g1) = randomUnitVector g
@@ -25,7 +25,7 @@ instance Material Lambertian where
 
 data Metal = Metal Vec3
 instance Material Metal where
-    scatter ray record attenuation scattered g (Metal albedo) = 
+    scatter ray record g (Metal albedo) = 
         (r, att, g)
             where
                 reflected = reflect (unitVector (direction ray)) (n record)
