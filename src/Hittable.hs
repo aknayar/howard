@@ -1,3 +1,5 @@
+{-# LANGUAGE ExistentialQuantification #-}
+
 module Hittable where
 
 import Vec3
@@ -5,14 +7,13 @@ import Ray
 import Data.Maybe (fromMaybe)
 import Interval
 
-class Material a where
-  scatter :: Ray -> Maybe HitRecord -> Vec3 -> Ray -> a -> Maybe HitRecord
+data Material = forall a. Material a
 
 data HitRecord = HitRecord { p :: Vec3, n :: Vec3, mat :: Material, t :: Double, front_face :: Bool }
 
 setFaceNormal :: Ray -> Vec3 -> HitRecord -> HitRecord
 setFaceNormal r outward_normal original =
-  HitRecord (p original) new_normal (t original) new_front_face
+  HitRecord (p original) new_normal (mat original) (t original) new_front_face
     where
       new_front_face = direction r `dot` outward_normal < 0
       new_normal = if new_front_face then outward_normal else negateVec3 outward_normal

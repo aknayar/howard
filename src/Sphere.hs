@@ -18,12 +18,12 @@ instance Hittable Sphere where
             checkRoot root = surrounds root range
 
             updateHitRecord :: Double -> HitRecord -> HitRecord
-            updateHitRecord root (HitRecord p n t (material s) f) =
+            updateHitRecord root (HitRecord p n (Material s1) t f) =
                 let hit_point = origin r `addVec3` (direction  r`multiplyVec3` root)
                     hit_normal = (hit_point `minusVec3` center s) `divideVec3` radius s
                     outward_normal = (p `minusVec3` center s) `divideVec3` radius s
                     new_front_face = maybe False front_face record
-                in setFaceNormal r outward_normal (HitRecord hit_point hit_normal root (material s) new_front_face)
+                in setFaceNormal r outward_normal (HitRecord hit_point hit_normal (Material s1) root new_front_face)
 
         in if discriminant < 0
             then Nothing
@@ -37,13 +37,13 @@ instance Hittable Sphere where
                     new_front_face = maybe False front_face record
 
                     new_record = case record of
-                        Nothing -> HitRecord (Vec3 0 0 0) (Vec3 0 0 0) 0 False
+                        Nothing -> HitRecord (Vec3 0 0 0) (Vec3 0 0 0) (Material s) 0 False
                         Just real_record -> real_record
 
 
                 in case (validRoot1, validRoot2) of
-                    (True, _) -> Just $ updateHitRecord root1 HitRecord (p new_record) (n new_record) root1 (material s) new_front_face
-                    (_, True) -> Just $ updateHitRecord root2 (HitRecord (p new_record) (n new_record) root2 (material s) new_front_face)
+                    (True, _) -> Just $ updateHitRecord root1 (HitRecord (p new_record) (n new_record) (Material s) root1 new_front_face)
+                    (_, True) -> Just $ updateHitRecord root2 (HitRecord (p new_record) (n new_record) (Material s) root2 new_front_face)
                     _ -> Nothing
 
 

@@ -43,7 +43,7 @@ rayColor :: Hittable a => Ray -> a -> Int -> StdGen -> (Vec3, StdGen)
 rayColor _ _ 0 g = (Vec3 0 0 0, g)
 rayColor (Ray org dir) world i g = ret
                 where
-                    tempRecord = HitRecord (Vec3 0 0 0 ) (Vec3 0 0 0 ) 0 False
+                    tempRecord = HitRecord (Vec3 0 0 0 ) (Vec3 0 0 0 ) (Material a) 0 False
                     isHit = hit (Ray org dir) (Interval 0.001 9999999999999) (Just tempRecord) world
                     unit_direction = unitVector dir
                     a = (y unit_direction + 1.0) * 0.5
