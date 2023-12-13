@@ -49,10 +49,12 @@ rayColor (Ray org dir) world i g = ret
                     a = (y unit_direction + 1.0) * 0.5
                     ret = case isHit of
                         Nothing -> ((Vec3 1.0 1.0 1.0 `multiplyVec3` (1.0 - a)) `addVec3` (Vec3 0.5 0.7 1.0 `multiplyVec3` a), g)
-                        Just (HitRecord p2 n2 m t2 ff) -> (attenuation `multiplyVec3` v, g2)
-                            where
-                                (scattered, attenuation, g1) = scatter (Ray org dir) (HitRecord p2 n2 m t2 ff) g m
-                                (v, g2) = (rayColor scattered world (i - 1) g1)
+                        Just (HitRecord p2 n2 m t2 ff) -> 
+                            case scatter (Ray org dir) (HitRecord p2 n2 m t2 ff) g m of
+                                (Nothing, g1) -> (Vec3 0 0 0, g1)
+                                (Just (scattered, attenuation), g1) -> (attenuation `multiplyVec3` v, g2)
+                                    where
+                                        (v, g2) = (rayColor scattered world (i - 1) g1)
 
 render :: Hittable a => Camera -> a -> IO()
 render cam world = do
