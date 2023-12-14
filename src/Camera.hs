@@ -21,22 +21,30 @@ data Camera = Camera
     } deriving Show
 
 
-initialize :: Double -> Int -> Int -> Camera
-initialize aspect width samples = Camera aspect width height samples cent pixel100 deltaU deltaV 50
+initialize :: Double -> Int -> Int -> Double -> Vec3 -> Vec3 -> Vec3 -> Camera
+initialize aspect width samples vFov lookFrom lookAt vUp = Camera aspect width height samples cent pixel100 deltaU deltaV 50
                             where
                                 height = max 1 (floor $ fromIntegral width / aspect)
-                                cent = Vec3 0 0 0
-                                focalLength = 1.0
-                                viewPortHeight = 2.0
+
+                                cent = lookFrom
+                                focalLength = lengthVec3 (lookFrom `minusVec3` lookAt)
+
+                                w = unitVector (lookFrom `minusVec3` lookAt)
+                                u = unitVector (cross vUp w)
+                                v = cross w u
+                                
+                                theta = degreesToRadians vFov
+                                h = tan (theta / 2.0)
+                                viewPortHeight = 2.0 * h * focalLength
                                 viewPortWidth = viewPortHeight * (fromIntegral width / fromIntegral height)
 
-                                viewPortU = Vec3 viewPortWidth 0 0
-                                viewPortV = Vec3 0 (-viewPortHeight) 0
+                                viewPortU = u `multiplyVec3` viewPortWidth
+                                viewPortV = (negateVec3 v) `multiplyVec3` viewPortHeight
 
                                 deltaU = viewPortU `divideVec3` fromIntegral width
                                 deltaV = viewPortV `divideVec3` fromIntegral height
 
-                                viewPortUpperLeft = cent `minusVec3` Vec3 0 0 focalLength `minusVec3` (viewPortU `divideVec3` 2) `minusVec3` (viewPortV `divideVec3` 2)
+                                viewPortUpperLeft = cent `minusVec3` (w `multiplyVec3` focalLength) `minusVec3` (viewPortU `divideVec3` 2) `minusVec3` (viewPortV `divideVec3` 2)
                                 pixel100 = viewPortUpperLeft `addVec3` ((deltaU `addVec3` deltaV) `multiplyVec3` (0.5 :: Double))
                                 
 rayColor :: Hittable a => Ray -> a -> Int -> StdGen -> (Vec3, StdGen)
