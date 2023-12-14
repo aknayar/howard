@@ -24,8 +24,7 @@ instance Hittable Sphere where
                 let hit_point = origin r `addVec3` (direction  r`multiplyVec3` root)
                     hit_normal = (hit_point `minusVec3` cent) `divideVec3` rad
                     outward_normal = (p `minusVec3` cent) `divideVec3` rad
-                    new_front_face = maybe False front_face record
-                in setFaceNormal r outward_normal (HitRecord hit_point hit_normal mat root new_front_face)
+                in setFaceNormal r outward_normal (HitRecord hit_point hit_normal mat root f)
 
         in if discriminant < 0
             then Nothing
@@ -36,12 +35,11 @@ instance Hittable Sphere where
 
                     validRoot1 = checkRoot root1
                     validRoot2 = checkRoot root2
-                    new_front_face = maybe False front_face record
+                    new_front_face = maybe True front_face record
 
                     new_record = case record of
                         Nothing -> HitRecord (Vec3 0 0 0) (Vec3 0 0 0) mat 0 new_front_face
                         Just real_record -> real_record
-
 
                 in case (validRoot1, validRoot2) of
                     (True, _) -> Just $ updateHitRecord root1 (HitRecord (p new_record) (n new_record) mat root1 (front_face new_record))
