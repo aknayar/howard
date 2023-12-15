@@ -4,7 +4,9 @@ module Hittable where
 
 import Vec3
 import Ray
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, catMaybes, fromJust)
+import Data.List (sortBy, reverse)
+import Data.Function (on)
 import Interval
 import Utilities
 import System.Random
@@ -44,11 +46,9 @@ class Hittable a where
 newtype HittableList a = HittableList [a]
 
 instance Hittable a => Hittable (HittableList a) where
-    hit ray range record (HittableList items) = record
+    hit ray range record (HittableList items) = new_record
         where
-            reduce i (r, current_max) = fromMaybe (r, current_max) m
-                where
-                    m = do
-                        record <- hit ray range record i
-                        return (Just record, t record)
-            record = fst $ foldr reduce (Nothing, t_max range) items
+            hits =  (catMaybes (map (hit ray range record) items))
+            res = (t_max range, Nothing :: (Maybe HitRecord)) : (map (\a -> (t a, Just a) :: (Double, Maybe HitRecord)) hits)
+            sort_res = sortBy (flip compare `on` fst) res
+            new_record = (snd (head (reverse sort_res)))
