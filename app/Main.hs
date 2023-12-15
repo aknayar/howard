@@ -11,7 +11,7 @@ main = do
     let
         material_ground = Lambertian (Vec3 0.8 0.8 0)
         material_center = Lambertian (Vec3 0.1 0.2 0.5)
-        material_left = Dielectric 1.5
+        material_left = Metal (Vec3 0.8 0.8 0.8) 0.7
         material_right = Metal (Vec3 0.8 0.6 0.2) 0
 
         groundSphere = Sphere (Vec3 0 (-100.5) (-1.0)) 100.0 material_ground
