@@ -43,6 +43,9 @@ unitVector v = v `divideVec3` lengthVec3 v
 dot :: Vec3 -> Vec3 -> Double
 dot (Vec3 u1 u2 u3) (Vec3 v1 v2 v3) = (u1 * v1) + (u2 * v2) + (u3 * v3)
 
+cross :: Vec3 -> Vec3 -> Vec3
+cross (Vec3 a1 a2 a3) (Vec3 b1 b2 b3) = Vec3 (a2 * b3 - a3 * b2) (a3 * b1 - a1 * b3) (a1 * b2 - a2 * b1)
+
 randomVec3 :: StdGen -> (Vec3, StdGen)
 randomVec3 = randomVec3R 0.0 1.0
 
