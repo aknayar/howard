@@ -44,15 +44,11 @@ class Hittable a where
 newtype HittableList a = HittableList [a]
 
 instance Hittable a => Hittable (HittableList a) where
-    hit ray range record (HittableList items') = fst (hitHelper items') 
+    hit ray range record (HittableList items) = record
         where
-            hitHelper :: Hittable a => [a] -> (Maybe HitRecord, Double)
-            hitHelper items = case items of
-                [] -> (Nothing, t_max range)
-                (x:xs) ->
-                    case myHit of
-                        Nothing -> (resRecord, resMin)
-                        Just yesHit -> if (t yesHit < resMin) then (Just yesHit, t yesHit) else (resRecord, resMin)
-                    where
-                        (resRecord, resMin) = hitHelper xs
-                        myHit = hit ray (Interval (t_min range) resMin) record x
+            reduce i (r, current_max) = fromMaybe (r, current_max) m
+                where
+                    m = do
+                        record <- hit ray range record i
+                        return (Just record, t record)
+            record = fst $ foldr reduce (Nothing, t_max range) items
