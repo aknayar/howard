@@ -72,7 +72,8 @@ main = do
         lookAt = Vec3 0 0 0
         vUp = Vec3 0 1 0
 
-        world = HittableList (sortBy (distFromCamera lookFrom) l)
+        -- world = HittableList (sortBy (distFromCamera lookFrom) l)
+        world = HittableList l
 
         cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
 
