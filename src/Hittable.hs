@@ -29,6 +29,25 @@ instance Material Metal where
                 (rand, g1) = randomUnitVector g
                 scattered = (Ray (p record) (reflected `addVec3` (rand `multiplyVec3` fuzz)))
 
+data Dielectric = Dielectric Double
+instance Material Dielectric where
+    scatter ray record g (Dielectric ir) =
+        (Just (scattered, color), g)
+            where
+                color = Vec3 1.0 1.0 1.0
+                refractionRatio = if front_face record then 1.0 / ir else ir
+
+                unitDirection = unitVector (direction ray)
+
+                cosTheta = min (negateVec3 unitDirection `dot` n record) 1.0
+                sinTheta = sqrt (1.0 - cosTheta * cosTheta)
+
+                cannotRefract = refractionRatio * sinTheta > 1.0
+
+                scattered = if cannotRefract then Ray (p record) (reflect unitDirection (n record)) else Ray (p record) (refract unitDirection (n record) refractionRatio)
+
+
+
 data HitRecord = forall a. Material a => HitRecord { p :: Vec3, n :: Vec3, mat :: a, t :: Double, front_face :: Bool }
 
 setFaceNormal :: Ray -> Vec3 -> HitRecord -> HitRecord
