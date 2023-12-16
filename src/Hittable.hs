@@ -97,12 +97,13 @@ hitSphere r range record (Sphere cent rad mat) =
 hitTriangle r range record (Triangle a@(Vec3 a1 a2 a3) b@(Vec3 b1 b2 b3) c@(Vec3 c1 c2 c3) mat) =
     let n1 = ((b `minusVec3` a) `cross` (c `minusVec3` a))
         q = ((origin r `minusVec3` a) `cross` (direction r))
-        denom = direction r `dot` n1
-        
+        denom = direction r `dot` n1    
         
         updateHitRecord :: Double -> Vec3 -> HitRecord -> HitRecord
         updateHitRecord t p1 (HitRecord _ _ mat2 _ f) =
-            setFaceNormal r n1 (HitRecord p1 n1 mat2 t f)
+            if (direction r) `dot` n1 > 0
+                then (HitRecord p1 (negateVec3 (unitVector n1)) mat2 t True)
+                else (HitRecord p1 (unitVector n1) mat2 t True)
 
     in if denom == 0
         then Nothing

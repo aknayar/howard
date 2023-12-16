@@ -61,10 +61,10 @@ main = do
 
         -- world = HittableList ([sphere1, sphere2, sphere3] ++ objects ++ [groundSphere])
         -- world = HittableList [(Triangle (Vec3 (-10) 0 (-10)) (Vec3 0 0 (10)) (Vec3 10 0 (-10)) material3)]
-        triangle1 = (Triangle (Vec3 (-3) 0 (-3)) (Vec3 (-3) 0 3) (Vec3 (-1.5) 3 1.5) material2)
-        triangle2 = (Triangle (Vec3 (-3) 0 (-3)) (Vec3 3 0 (-3)) (Vec3 (-1.5) 3 1.5) material2)
-        triangle3 = (Triangle (Vec3 3 0 (-3)) (Vec3 3 0 3) (Vec3 (-1.5) 3 1.5) material2)
-        triangle4 = (Triangle (Vec3 3 0 3) (Vec3 (-3) 0 3) (Vec3 (-1.5) 3 1.5) material2)
+        triangle1 = (Triangle (Vec3 (-3) 0 (-3)) (Vec3 (-3) 0 (-2)) (Vec3 (-2.5) 3 (-2.5)) material2)
+        triangle2 = (Triangle (Vec3 (-3) 0 (-3)) (Vec3 (-2) 0 (-3)) (Vec3 (-2.5) 3 (-2.5)) material2)
+        triangle3 = (Triangle (Vec3 (-2) 0 (-3)) (Vec3 (-2) 0 (-2)) (Vec3 (-2.5) 3 (-2.5)) material2)
+        triangle4 = (Triangle (Vec3 (-2) 0 (-2)) (Vec3 (-3) 0 (-2)) (Vec3 (-2.5) 3 (-2.5)) material2)
         world = [sphere1, sphere2, sphere3, groundSphere, triangle1, triangle2, triangle3, triangle4]
         -- world = HittableList [groundSphere]
 
@@ -76,6 +76,6 @@ main = do
         -- world = HittableList (sortBy (distFromCamera lookFrom) l)
         -- world = HittableList l
 
-        cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
+        cam = initialize (16.0/9.0) 720 100 vFov lookFrom lookAt vUp
 
     render cam world
