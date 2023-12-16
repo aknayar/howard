@@ -47,7 +47,7 @@ randomBall a b g =
 main :: IO ()
 main = do
     let
-        material_ground = Lambertian (Vec3 0.5 0.5 0.5)
+        material_ground = Metal (Vec3 0.7 0.6 0.5) 0.5
         groundSphere = Sphere (Vec3 0 (-1000) 0) 1000 material_ground
         objects = (catMaybes [randomBall a b (mkStdGen (21 * a + b)) | a <- [-11,-10..11], b <- [-11,-10..11]])
 
@@ -60,11 +60,11 @@ main = do
         sphere1 = Sphere (Vec3 4 1 0) 1.0 material3
 
         -- world = HittableList ([sphere1, sphere2, sphere3] ++ objects ++ [groundSphere])
-        world = HittableList [(Triangle (Vec3 (-1) 1 0) (Vec3 0 0 (-1)) (Vec3 0 0 1) material_ground)]
+        world = HittableList [(Triangle (Vec3 (-10) 0 (-10)) (Vec3 0 0 (10)) (Vec3 10 0 (-10)) material_ground)]
         -- world = HittableList [groundSphere]
 
         vFov = 90
-        lookFrom = Vec3 13 1 0
+        lookFrom = Vec3 5 1 0
         lookAt = Vec3 0 1 0
         vUp = Vec3 0 1 0
 
