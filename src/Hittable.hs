@@ -58,16 +58,72 @@ setFaceNormal r outward_normal (HitRecord pOriginal _ matOriginal tOriginal _) =
       new_front_face = direction r `dot` outward_normal < 0
       new_normal = if new_front_face then outward_normal else negateVec3 outward_normal
 
-class Hittable a where
-  hit :: Ray -> Interval -> Maybe HitRecord -> a -> Maybe HitRecord
+data Hittable = forall a. Material a => Sphere  Vec3 Double a | forall a. Material a => Triangle Vec3 Vec3 Vec3 a
 
-newtype HittableList a = HittableList [a]
+hitSphere r range record (Sphere cent rad mat) =
+    let oc = origin r `minusVec3` cent
+        a = lengthSquaredVec3 (direction r)
+        half_b = oc `dot` (direction r)
+        c = lengthSquaredVec3 oc - (rad * rad)
 
-instance Hittable a => Hittable (HittableList a) where
-    hit ray range record (HittableList items) = hitHelper ray range record (HittableList items)
-        where
-            hitHelper _ _ record (HittableList []) = record
-            hitHelper ray range record (HittableList (x:xs)) =
-                case hit ray range record x of
-                            Nothing -> hitHelper ray range record (HittableList xs)
-                            Just valid -> hitHelper ray (Interval (t_min range) (t valid)) (Just valid) (HittableList xs)
+        discriminant = half_b * half_b - a * c
+
+        checkRoot :: Double -> Bool
+        checkRoot root = surrounds root range
+
+        updateHitRecord :: Double -> HitRecord -> HitRecord
+        updateHitRecord root (HitRecord _ _ mat2 _ f) =
+            setFaceNormal r outward_normal (HitRecord hit_point outward_normal mat2 root f)
+                where
+                    hit_point = at r root
+                    outward_normal = (hit_point `minusVec3` cent) `divideVec3` rad
+
+    in if discriminant < 0
+        then Nothing
+        else
+            let sqrtd = sqrt discriminant
+                root1 = (-half_b - sqrtd) / a
+                root2 = (-half_b + sqrtd) / a
+
+                validRoot1 = checkRoot root1
+                validRoot2 = checkRoot root2
+
+            in case (validRoot1, validRoot2) of
+                (True, _) -> Just $ updateHitRecord root1 (HitRecord (Vec3 0 0 0) (Vec3 0 0 0) mat 0 True)
+                (_, True) -> Just $ updateHitRecord root2 (HitRecord (Vec3 0 0 0) (Vec3 0 0 0) mat 0 True)
+                _ -> Nothing
+    
+
+hitTriangle r range record (Triangle a@(Vec3 a1 a2 a3) b@(Vec3 b1 b2 b3) c@(Vec3 c1 c2 c3) mat) =
+    let n1 = ((b `minusVec3` a) `cross` (c `minusVec3` a))
+        q = ((origin r `minusVec3` a) `cross` (direction r))
+        denom = direction r `dot` n1
+        
+        
+        updateHitRecord :: Double -> Vec3 -> HitRecord -> HitRecord
+        updateHitRecord t p1 (HitRecord _ _ mat2 _ f) =
+            setFaceNormal r n1 (HitRecord p1 n1 mat2 t f)
+
+    in if denom == 0
+        then Nothing
+        else
+            let d = 1.0 / denom
+                u = d * ((negateVec3 q) `dot` (c `minusVec3` a))
+                v = d * (q `dot` (b `minusVec3` a))
+                t = d * ((negateVec3 n1) `dot` (origin r `minusVec3` a))
+            in if t < 0 || u < 0 || v < 0 || u + v > 1 then
+                Nothing
+            else Just $ updateHitRecord t (at r t) (HitRecord (Vec3 0 0 0) (Vec3 0 0 0) mat 0 True)
+
+hit :: Ray -> Interval -> Maybe HitRecord -> [Hittable] -> Maybe HitRecord
+hit ray range record items = hitHelper ray range record items
+    where
+        hitHelper _ _ record [] = record
+        hitHelper ray range record (x:xs) =
+            case result of
+                        Nothing -> hitHelper ray range record xs
+                        Just valid -> hitHelper ray (Interval (t_min range) (t valid)) (Just valid) xs
+                where
+                    result = case x of
+                        Sphere cent rad mat -> hitSphere ray range record (Sphere cent rad mat)
+                        Triangle a b c mat -> hitTriangle ray range record (Triangle a b c mat)
