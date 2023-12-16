@@ -18,7 +18,8 @@ instance Material Lambertian where
         (Just (Ray (p record) scatter_direction, albedo), g1)
             where
                 (rand, g1) = randomUnitVector g
-                scatter_direction = if (nearZero rand) then (n record) else ((n record) `addVec3` rand)
+                new_scatter = (n record) `addVec3` rand
+                scatter_direction = if (nearZero new_scatter) then (n record) else (new_scatter)
 
 data Metal = Metal Vec3 Double
 instance Material Metal where
@@ -63,11 +64,10 @@ class Hittable a where
 newtype HittableList a = HittableList [a]
 
 instance Hittable a => Hittable (HittableList a) where
-    hit ray range record (HittableList items) = record
+    hit ray range record (HittableList items) = hitHelper ray range record (HittableList items)
         where
-            reduce i (r, current_max) = fromMaybe (r, current_max) m
-                where
-                    m = do
-                        record <- hit ray range record i
-                        return (Just record, t record)
-            record = fst $ foldr reduce (Nothing, t_max range) items
+            hitHelper _ _ record (HittableList []) = record
+            hitHelper ray range record (HittableList (x:xs)) =
+                case hit ray range record x of
+                            Nothing -> hitHelper ray range record (HittableList xs)
+                            Just valid -> hitHelper ray (Interval (t_min range) (t valid)) (Just valid) (HittableList xs)
