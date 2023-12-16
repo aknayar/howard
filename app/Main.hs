@@ -2,6 +2,7 @@ module Main (main) where
 
 import Vec3
 import Sphere
+import Triangle
 import Hittable
 import Camera
 import Utilities
@@ -58,11 +59,13 @@ main = do
         sphere2 = Sphere (Vec3 (-4) 1 0) 1.0 material2
         sphere1 = Sphere (Vec3 4 1 0) 1.0 material3
 
-        world = HittableList ([sphere1, sphere2, sphere3] ++ objects ++ [groundSphere])
+        -- world = HittableList ([sphere1, sphere2, sphere3] ++ objects ++ [groundSphere])
+        world = HittableList [(Triangle (Vec3 (-1) 1 0) (Vec3 0 0 (-1)) (Vec3 0 0 1) material_ground)]
+        -- world = HittableList [groundSphere]
 
-        vFov = 20
-        lookFrom = Vec3 13 2 3
-        lookAt = Vec3 0 0 0
+        vFov = 90
+        lookFrom = Vec3 13 1 0
+        lookAt = Vec3 0 1 0
         vUp = Vec3 0 1 0
 
         -- world = HittableList (sortBy (distFromCamera lookFrom) l)

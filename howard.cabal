@@ -29,6 +29,7 @@ library
       Lib
       Ray
       Sphere
+      Triangle
       Vec3
       Hittable
       Interval
