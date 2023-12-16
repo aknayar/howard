@@ -4,9 +4,16 @@ import Vec3
 import Sphere
 import Hittable
 import Camera
+<<<<<<< HEAD
 import Utilities
 import System.Random
 import Data.Maybe (catMaybes)
+=======
+import Data.List (sortBy)
+
+distFromCamera :: Vec3 -> Sphere -> Sphere -> Ordering
+distFromCamera c a1 a2 = lengthSquaredVec3 (c `minusVec3` (Sphere.center a1)) `compare` lengthSquaredVec3 (c `minusVec3` (Sphere.center a2))
+>>>>>>> 0f47916 (fix ordering issue)
 
 randomLambert :: Vec3 -> StdGen -> (Sphere, StdGen)
 randomLambert center g = (Sphere center 0.2 mat, g1)
@@ -64,6 +71,9 @@ main = do
         lookFrom = Vec3 13 2 3
         lookAt = Vec3 0 0 0
         vUp = Vec3 0 1 0
+
+        world = HittableList (sortBy (distFromCamera lookFrom) l)
+
         cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
 
     render cam world

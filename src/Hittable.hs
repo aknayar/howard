@@ -18,7 +18,8 @@ instance Material Lambertian where
         (Just (Ray (p record) scatter_direction, albedo), g1)
             where
                 (rand, g1) = randomUnitVector g
-                scatter_direction = if (nearZero rand) then (n record) else ((n record) `addVec3` rand)
+                new_scatter = (n record) `addVec3` rand
+                scatter_direction = if (nearZero new_scatter) then (n record) else (new_scatter)
 
 data Metal = Metal Vec3 Double
 instance Material Metal where
