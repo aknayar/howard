@@ -51,22 +51,19 @@ main = do
         objects = (catMaybes [randomBall a b (mkStdGen (21 * a + b)) | a <- [-11,-10..11], b <- [-11,-10..11]])
 
         material1 = Dielectric 1.5
-        material2 = Lambertian (Vec3 0.4 0.2 0.1)
-        material3 = Metal (Vec3 0.7 0.6 0.5) 0.0
+        material3 = Lambertian (Vec3 0.4 0.2 0.1)
+        material2 = Metal (Vec3 0.7 0.6 0.5) 0.0
 
-        sphere3 = Sphere (Vec3 0 1 0) 1.0 material1
-        sphere2 = Sphere (Vec3 (-4) 1 0) 1.0 material2
-        sphere1 = Sphere (Vec3 4 1 0) 1.0 material3
+        -- world = HittableList ([sphere1, sphere2, sphere3] ++ objects ++ [groundSphere])
 
-        world = HittableList ([sphere1, sphere2, sphere3] ++ objects ++ [groundSphere])
+        world = HittableList ([groundSphere, Sphere (Vec3 0 0.5 (-0.5)) 0.5 material2, Sphere (Vec3 0 0.5 (0.5)) 0.5 material2, Sphere (Vec3 0 1 0) 0.5 material2, Sphere (Vec3 0 1.5 0) 0.5 material2, Sphere (Vec3 0 2 0) 0.5 material2])
 
         vFov = 20
-        lookFrom = Vec3 13 2 3
-        lookAt = Vec3 0 0 0
+        -- lookFrom = Vec3 13 2 3
+        lookFrom = Vec3 13 2 0
+        lookAt = Vec3 0 1 0
         vUp = Vec3 0 1 0
 
-        -- world = HittableList (sortBy (distFromCamera lookFrom) l)
-        -- world = HittableList l
 
         cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
 
