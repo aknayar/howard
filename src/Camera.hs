@@ -47,7 +47,7 @@ initialize aspect width samples vFov lookFrom lookAt vUp = Camera aspect width h
                                 viewPortUpperLeft = cent `minusVec3` (w `multiplyVec3` focalLength) `minusVec3` (viewPortU `divideVec3` 2) `minusVec3` (viewPortV `divideVec3` 2)
                                 pixel100 = viewPortUpperLeft `addVec3` ((deltaU `addVec3` deltaV) `multiplyVec3` (0.5 :: Double))
                                 
-rayColor :: Hittable a => Ray -> a -> Int -> StdGen -> (Vec3, StdGen)
+rayColor :: Ray -> [Hittable] -> Int -> StdGen -> (Vec3, StdGen)
 rayColor _ _ 0 g = (Vec3 0 0 0, g)
 rayColor (Ray org dir) world i g = ret
                 where
@@ -63,7 +63,7 @@ rayColor (Ray org dir) world i g = ret
                                     where
                                         (v, g2) = (rayColor scattered world (i - 1) g1)
 
-render :: Hittable a => Camera -> a -> IO()
+render :: Camera -> [Hittable] -> IO()
 render cam world = do
                 putStrLn $ "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255"
                 mapM_ (\j -> mapM_ (\i -> do
@@ -71,7 +71,7 @@ render cam world = do
                         writeColor pixelColor (samplesPerPixel cam)
                     ) [0..imageWidth cam -1]) [0..imageHeight cam-1]
 
-updateColor :: Hittable a => Int -> Vec3 -> Int -> Int -> Camera -> a -> StdGen -> (Vec3, StdGen)
+updateColor :: Int -> Vec3 -> Int -> Int -> Camera -> [Hittable] -> StdGen -> (Vec3, StdGen)
 updateColor 0 x _ _ _ _ g = (x, g)
 updateColor samples cur i j cam world g = updateColor (samples - 1) next i j cam world g2
                                             where

@@ -28,7 +28,6 @@ library
       Color
       Lib
       Ray
-      Sphere
       Vec3
       Hittable
       Interval
