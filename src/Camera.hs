@@ -7,6 +7,7 @@ import Interval
 import Color
 import Utilities
 import System.Random (mkStdGen, StdGen)
+import Control.Parallel.Strategies
 data Camera = Camera 
     {
         aspectRatio :: Double,
@@ -66,11 +67,23 @@ rayColor (Ray org dir) world i g = ret
 renderChunk :: Hittable a => Camera -> a -> Int -> Int -> Int -> String -> String
 renderChunk cam world i j end cur
         | j == end = cur
-        | i < (imageWidth cam - 1) = renderChunk cam world (i + 1) j end res
-        | otherwise = renderChunk cam world 0 (j + 1) end res
+        | i < (imageWidth cam - 1) = renderChunk cam world (i + 1) j end (cur ++ res)
+        | otherwise = renderChunk cam world 0 (j + 1) end (cur ++ res)
             where
                 (pixelColor, _) = updateColor (samplesPerPixel cam) (Vec3 0 0 0) i j cam world (mkStdGen (i * (imageHeight cam - 1) + j))
                 res = writeColorStr pixelColor (samplesPerPixel cam)
+
+renderParallel :: Hittable a => Camera -> a -> Int -> Int -> Int -> String -> String
+renderParallel cam world start end chunksize cur
+        | start == end = cur
+        | otherwise = runEval $ do
+                    curChunk <- rpar $ renderChunk cam world 0 start (min end (start + chunksize)) ""
+                    nextChunk <- rpar $ renderParallel cam world (min (start + chunksize) end) end chunksize ""
+                    rseq curChunk
+                    rseq nextChunk
+                    return (curChunk ++ nextChunk)
+                    
+
 render :: Hittable a => Camera -> a -> IO()
 render cam world = do
                 putStrLn $ "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255"
