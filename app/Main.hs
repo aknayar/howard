@@ -69,4 +69,4 @@ main = do
 
         cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
 
-    renderInChunks cam world 10
+    render cam world

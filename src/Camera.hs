@@ -7,7 +7,6 @@ import Interval
 import Color
 import Utilities
 import System.Random (mkStdGen, StdGen)
-import Control.Monad (when)
 data Camera = Camera 
     {
         aspectRatio :: Double,
@@ -64,25 +63,14 @@ rayColor (Ray org dir) world i g = ret
                                     where
                                         (v, g2) = (rayColor scattered world (i - 1) g1)
 
-renderChunk :: Hittable a => Camera -> a -> Int -> Int -> Int -> IO()
-renderChunk cam world chunkSize start end = do
-    mapM_ (\j -> mapM_ (\i -> do
-            let (pixelColor, _) = updateColor (samplesPerPixel cam) (Vec3 0 0 0) i j cam world (mkStdGen (i * (imageHeight cam - 1) + j))
-            writeColor pixelColor (samplesPerPixel cam)
-        ) [0..imageWidth cam -1]) [start..end]
-
-renderInChunks :: Hittable a => Camera -> a -> Int -> IO()
-renderInChunks cam world chunkSize = do
-    putStrLn $ "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255"
-    let numRows = imageHeight cam
-        numChunks = numRows `div` chunkSize
-        remainingRows = numRows `mod` chunkSize
-
-    mapM_ (\chunk -> renderChunk cam world chunkSize (chunk * chunkSize) ((chunk + 1) * chunkSize - 1)) [0..numChunks - 1]
-
-    when (remainingRows > 0) $
-        renderChunk cam world chunkSize (numChunks * chunkSize) (numRows - 1)
-
+renderChunk :: Hittable a => Camera -> a -> Int -> Int -> Int -> String -> String
+renderChunk cam world i j end cur
+        | j == end = cur
+        | i < (imageWidth cam - 1) = renderChunk cam world (i + 1) j end res
+        | otherwise = renderChunk cam world 0 (j + 1) end res
+            where
+                (pixelColor, _) = updateColor (samplesPerPixel cam) (Vec3 0 0 0) i j cam world (mkStdGen (i * (imageHeight cam - 1) + j))
+                res = writeColorStr pixelColor (samplesPerPixel cam)
 render :: Hittable a => Camera -> a -> IO()
 render cam world = do
                 putStrLn $ "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255"
