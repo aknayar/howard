@@ -94,27 +94,36 @@ hitSphere r range record (Sphere cent rad mat) =
                 _ -> Nothing
     
 
-hitTriangle r range record (Triangle a@(Vec3 a1 a2 a3) b@(Vec3 b1 b2 b3) c@(Vec3 c1 c2 c3) mat) =
-    let n1 = ((b `minusVec3` a) `cross` (c `minusVec3` a))
-        q = ((origin r `minusVec3` a) `cross` (direction r))
-        denom = direction r `dot` n1    
+hitTriangle r range record (Triangle a b c mat) =
+    let e1 = (b `minusVec3` a) 
+        e2 = (c `minusVec3` a)
+        dir = unitVector (direction r)
+        n1 = unitVector (e1 `cross` e2)
+        rayCrossE2 = dir `cross` e2
+
+        det = e1 `dot` rayCrossE2
         
         updateHitRecord :: Double -> Vec3 -> HitRecord -> HitRecord
         updateHitRecord t p1 (HitRecord _ _ mat2 _ f) =
-            if (direction r) `dot` n1 > 0
-                then (HitRecord p1 (negateVec3 (unitVector n1)) mat2 t True)
-                else (HitRecord p1 (unitVector n1) mat2 t True)
+            if dir `dot` n1 > 0
+                then (HitRecord p1 (negateVec3 (unitVector n1)) mat2 t False)
+                else (HitRecord p1 (unitVector n1) mat2 t False)
 
-    in if denom == 0
+    in if abs det <= 1e-6
         then Nothing
-        else
-            let d = 1.0 / denom
-                u = d * ((negateVec3 q) `dot` (c `minusVec3` a))
-                v = d * (q `dot` (b `minusVec3` a))
-                t = d * ((negateVec3 n1) `dot` (origin r `minusVec3` a))
-            in if t < 0 || u < 0 || v < 0 || u + v > 1 then
-                Nothing
-            else Just $ updateHitRecord t (at r t) (HitRecord (Vec3 0 0 0) (Vec3 0 0 0) mat 0 True)
+        else let
+            invDet = 1.0 / det
+            s = (origin r) `minusVec3` a
+            u = invDet * (s `dot` rayCrossE2)
+
+            sCrossE1 = s `cross` e1
+            v = invDet * (dir `dot` sCrossE1)
+
+            t = invDet * (e2 `dot` sCrossE1)
+
+            in if (u < 0 || u > 1 || v < 0 || u + v > 1 || t <= 0)
+                then Nothing
+                else Just $ updateHitRecord t (origin r `addVec3` (dir `multiplyVec3` t)) (HitRecord (Vec3 0 0 0) (Vec3 0 0 0) mat 0 True)
 
 hit :: Ray -> Interval -> Maybe HitRecord -> [Hittable] -> Maybe HitRecord
 hit ray range record items = hitHelper ray range record items

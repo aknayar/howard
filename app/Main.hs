@@ -53,18 +53,18 @@ main = do
 
         material1 = Dielectric 1.5
         material2 = Lambertian (Vec3 0.4 0.2 0.1)
-        material3 = Metal (Vec3 0.7 0.6 0.5) 0.0
+        material3 = Metal (Vec3 1 1 1) 0.0
 
-        sphere3 = Sphere (Vec3 0 1 0) 1.0 material1
-        sphere2 = Sphere (Vec3 (-4) 1 0) 1.0 material2
-        sphere1 = Sphere (Vec3 4 1 0) 1.0 material3
+        sphere3 = Sphere (Vec3 0 2 0) 2.0 material3
+        sphere2 = Sphere (Vec3 (-4) 2 0) 2.0 material2
+        sphere1 = Sphere (Vec3 4 2 0) 2.0 material1
 
         -- world = HittableList ([sphere1, sphere2, sphere3] ++ objects ++ [groundSphere])
         -- world = HittableList [(Triangle (Vec3 (-10) 0 (-10)) (Vec3 0 0 (10)) (Vec3 10 0 (-10)) material3)]
-        triangle1 = (Triangle (Vec3 (-3) 0 (-3)) (Vec3 (-3) 0 (-2)) (Vec3 (-2.5) 3 (-2.5)) material2)
-        triangle2 = (Triangle (Vec3 (-3) 0 (-3)) (Vec3 (-2) 0 (-3)) (Vec3 (-2.5) 3 (-2.5)) material2)
-        triangle3 = (Triangle (Vec3 (-2) 0 (-3)) (Vec3 (-2) 0 (-2)) (Vec3 (-2.5) 3 (-2.5)) material2)
-        triangle4 = (Triangle (Vec3 (-2) 0 (-2)) (Vec3 (-3) 0 (-2)) (Vec3 (-2.5) 3 (-2.5)) material2)
+        triangle1 = (Triangle (Vec3 (-3) 0 (-3)) (Vec3 (-3) 0 (-2)) (Vec3 (-2.5) 5 (-2.5)) material2)
+        triangle2 = (Triangle (Vec3 (-3) 0 (-3)) (Vec3 (-2) 0 (-3)) (Vec3 (-2.5) 5 (-2.5)) material2)
+        triangle3 = (Triangle (Vec3 (-2) 0 (-2)) (Vec3 (-3) 0 (-2)) (Vec3 (-2.5) 5 (-2.5)) material2)
+        triangle4 = (Triangle (Vec3 (-2) 0 (-2)) (Vec3 (-2) 0 (-3)) (Vec3 (-2.5) 5 (-2.5)) material2)
         world = [sphere1, sphere2, sphere3, groundSphere, triangle1, triangle2, triangle3, triangle4]
         -- world = HittableList [groundSphere]
 
