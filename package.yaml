@@ -33,7 +33,6 @@ ghc-options:
 - -Wmissing-home-modules
 - -Wpartial-fields
 - -Wredundant-constraints
-- -eventlog
 
 library:
   source-dirs: src
@@ -46,7 +45,6 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    - -eventlog
     dependencies:
     - howard
 

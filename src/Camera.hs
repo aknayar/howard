@@ -1,4 +1,9 @@
-module Camera where
+module Camera(
+    Camera (Camera),
+    initialize,
+    rayColor,
+    renderParallel
+) where
 
 import Vec3
 import Ray
@@ -79,25 +84,8 @@ processPixel cam world j i =
     let (pixelColor, _) = updateColor (samplesPerPixel cam) (Vec3 0 0 0) i j cam world (mkStdGen (i * (imageHeight cam - 1) + j))
     in writeColorStr pixelColor (samplesPerPixel cam)
 
--- renderParallel :: Hittable a => Camera -> a -> Int -> Int -> Int -> String -> String
--- renderParallel cam world start end chunksize cur
---         | start == end = cur
---         | otherwise = runEval $ do
---                     curChunk <- rpar $ renderChunk cam world 0 start (min end (start + chunksize)) ""
---                     nextChunk <- rpar $ renderParallel cam world (min (start + chunksize) end) end chunksize ""
---                     return (curChunk ++ nextChunk)
-                    
-
-render :: Hittable a => Camera -> a -> IO()
-render cam world = do
-                putStrLn $ "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255"
-                mapM_ (\j -> mapM_ (\i -> do
-                        let (pixelColor, _) = updateColor (samplesPerPixel cam) (Vec3 0 0 0) i j cam world (mkStdGen (i * (imageHeight cam - 1) + j))
-                        writeColor pixelColor (samplesPerPixel cam)
-                    ) [0..imageWidth cam -1]) [0..imageHeight cam-1]
-
 updateColor :: Hittable a => Int -> Vec3 -> Int -> Int -> Camera -> a -> StdGen -> (Vec3, StdGen)
-updateColor 0 x _ _ _ _ g = (x, g)
+updateColor 0 x1 _ _ _ _ g = (x1, g)
 updateColor samples cur i j cam world g = updateColor (samples - 1) next i j cam world g2
                                             where
                                                 (r, g1) = getRay cam i j g

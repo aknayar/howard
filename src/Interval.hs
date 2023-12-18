@@ -1,4 +1,11 @@
-module Interval where
+module Interval(
+    Interval (Interval),
+    contains,
+    surrounds,
+    clamp,
+    t_min,
+    t_max,
+) where
 
 data Interval = Interval 
     {
@@ -7,10 +14,10 @@ data Interval = Interval
     }
 
 contains :: Double -> Interval -> Bool
-contains x (Interval t_min t_max) = x >= t_min && x <= t_max
+contains x (Interval t_min1 t_max1) = x >= t_min1 && x <= t_max1
 
 surrounds :: Double -> Interval -> Bool
-surrounds x (Interval t_min t_max) = t_min < x && x < t_max
+surrounds x (Interval t_min1 t_max1) = t_min1 < x && x < t_max1
 
 clamp :: Interval -> Double -> Double
 clamp (Interval rMin rMax) val
