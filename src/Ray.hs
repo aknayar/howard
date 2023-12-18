@@ -1,4 +1,9 @@
-module Ray where
+module Ray(
+    Ray (Ray),
+    origin,
+    direction,
+    at
+) where
 
 import Vec3
 

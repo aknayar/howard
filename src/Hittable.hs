@@ -1,12 +1,21 @@
 {-# LANGUAGE ExistentialQuantification #-}
 
-module Hittable where
+module Hittable(
+    Hittable,
+    HittableList (HittableList),
+    HitRecord (HitRecord),
+    Material,
+    Lambertian (Lambertian),
+    Metal (Metal),
+    Dielectric (Dielectric),
+    scatter,
+    hit,
+    setFaceNormal
+) where
 
 import Vec3
 import Ray
-import Data.Maybe (fromMaybe)
 import Interval
-import Utilities
 import System.Random
 
 class Material a where
@@ -14,7 +23,7 @@ class Material a where
 
 data Lambertian = Lambertian Vec3
 instance Material Lambertian where
-    scatter ray record g (Lambertian albedo) = 
+    scatter _ record g (Lambertian albedo) = 
         (Just (Ray (p record) scatter_direction, albedo), g1)
             where
                 (rand, g1) = randomUnitVector g
@@ -66,8 +75,8 @@ newtype HittableList a = HittableList [a]
 instance Hittable a => Hittable (HittableList a) where
     hit ray range record (HittableList items) = hitHelper ray range record (HittableList items)
         where
-            hitHelper _ _ record (HittableList []) = record
-            hitHelper ray range record (HittableList (x:xs)) =
-                case hit ray range record x of
-                            Nothing -> hitHelper ray range record (HittableList xs)
-                            Just valid -> hitHelper ray (Interval (t_min range) (t valid)) (Just valid) (HittableList xs)
+            hitHelper _ _ record' (HittableList []) = record'
+            hitHelper ray' range' record' (HittableList (x':xs)) =
+                case hit ray' range' record' x' of
+                            Nothing -> hitHelper ray' range' record' (HittableList xs)
+                            Just valid -> hitHelper ray' (Interval (t_min range) (t valid)) (Just valid) (HittableList xs)

@@ -1,15 +1,17 @@
 {-# LANGUAGE ExistentialQuantification #-}
 
-module Sphere where
+module Sphere(
+    Sphere (Sphere)
+) where
 
 import Vec3
 import Ray
 import Hittable
 import Interval
-data Sphere = forall a. Material a => Sphere { center :: Vec3, radius :: Double, material :: a}
+data Sphere = forall a. Material a => Sphere Vec3 Double a
 
 instance Hittable Sphere where
-    hit r range record (Sphere cent rad mat) =
+    hit r range _ (Sphere cent rad mat) =
         let oc = origin r `minusVec3` cent
             a = lengthSquaredVec3 (direction r)
             half_b = oc `dot` (direction r)

@@ -1,4 +1,8 @@
-module Utilities where
+module Utilities(
+    degreesToRadians,
+    randomDouble,
+    randomDoubleR
+) where
 import System.Random
 
 degreesToRadians :: Double -> Double

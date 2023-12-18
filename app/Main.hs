@@ -6,7 +6,6 @@ import Hittable
 import Camera
 import Utilities
 import System.Random
-import System.IO
 import Data.Maybe (catMaybes)
 
 randomLambert :: Vec3 -> StdGen -> (Sphere, StdGen)
@@ -32,11 +31,11 @@ randomBall a b g =
             else Just sphere
                 where
                     (chooseMat, g1) = randomDouble g
-                    (x, g2) = randomDouble g1
-                    (y, g3) = randomDouble g2
-                    center = Vec3 (fromIntegral a + 0.9 * x) 0.2 (fromIntegral b + 0.9 * y)
+                    (x', g2) = randomDouble g1
+                    (y', g3) = randomDouble g2
+                    center = Vec3 (fromIntegral a + 0.9 * x') 0.2 (fromIntegral b + 0.9 * y')
                     (l, g4) = randomLambert center g3
-                    (m, g5) = randomMetal center g4
+                    (m, _) = randomMetal center g4
                     sphere = if chooseMat < 0.8
                         then l
                         else
