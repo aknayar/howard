@@ -49,6 +49,7 @@ main = do
     let
         material_ground = Lambertian (Vec3 0.5 0.5 0.5)
         groundSphere = Sphere (Vec3 0 (-1000) 0) 1000 material_ground
+        objects = (catMaybes [randomBall a b (mkStdGen (21 * a + b)) | a <- [-11,-10..11], b <- [-11,-10..11]])
 
         material1 = Dielectric 1.5
         material2 = Lambertian (Vec3 0.4 0.2 0.1)
@@ -58,7 +59,7 @@ main = do
         sphere2 = Sphere (Vec3 (-4) 1 0) 1.0 material2
         sphere1 = Sphere (Vec3 4 1 0) 1.0 material3
 
-        world = HittableList ([sphere1, sphere2, sphere3] ++ [groundSphere])
+        world = HittableList ([sphere1, sphere2, sphere3] ++ objects ++ [groundSphere])
 
         vFov = 20
         lookFrom = Vec3 13 2 3
@@ -68,7 +69,7 @@ main = do
         -- world = HittableList (sortBy (distFromCamera lookFrom) l)
         -- world = HittableList l
 
-        cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
+        cam = initialize (16.0/9.0) 1920 100 vFov lookFrom lookAt vUp
     renderParallel cam world
     --     content = "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255\n"
     -- withFile "image.ppm" WriteMode $ \handle -> do
