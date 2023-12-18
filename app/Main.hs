@@ -73,7 +73,8 @@ main = do
                 vUp = Vec3 0 1 0
                 cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
 
-            renderParallel cam world        "lambertian" -> do
+            renderParallel cam world        
+        "lambertian" -> do
             let
 
                 groundSphere = Sphere (Vec3 0 (-100.5) 0) 100 material_ground
