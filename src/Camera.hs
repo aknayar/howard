@@ -7,6 +7,7 @@ import Interval
 import Color
 import Utilities
 import System.Random (mkStdGen, StdGen)
+import Control.Parallel.Strategies
 data Camera = Camera 
     {
         aspectRatio :: Double,
@@ -62,6 +63,30 @@ rayColor (Ray org dir) world i g = ret
                                 (Just (scattered, attenuation), g1) -> (attenuation `multiplyVec3` v, g2)
                                     where
                                         (v, g2) = (rayColor scattered world (i - 1) g1)
+
+renderParallel :: Hittable a => Camera -> a -> IO()
+renderParallel cam world = do
+    putStrLn $ "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255"
+    let rows = [0..imageHeight cam - 1]
+    let processedRows = parMap rdeepseq (processRow cam world) rows
+    mapM_ putStrLn processedRows
+
+processRow :: Hittable a => Camera -> a -> Int -> String
+processRow cam world j = unlines $ map (processPixel cam world j) [0..imageWidth cam - 1]
+
+processPixel :: Hittable a => Camera -> a -> Int -> Int -> String
+processPixel cam world j i = 
+    let (pixelColor, _) = updateColor (samplesPerPixel cam) (Vec3 0 0 0) i j cam world (mkStdGen (i * (imageHeight cam - 1) + j))
+    in writeColorStr pixelColor (samplesPerPixel cam)
+
+-- renderParallel :: Hittable a => Camera -> a -> Int -> Int -> Int -> String -> String
+-- renderParallel cam world start end chunksize cur
+--         | start == end = cur
+--         | otherwise = runEval $ do
+--                     curChunk <- rpar $ renderChunk cam world 0 start (min end (start + chunksize)) ""
+--                     nextChunk <- rpar $ renderParallel cam world (min (start + chunksize) end) end chunksize ""
+--                     return (curChunk ++ nextChunk)
+                    
 
 render :: Hittable a => Camera -> a -> IO()
 render cam world = do

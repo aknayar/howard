@@ -6,6 +6,7 @@ import Hittable
 import Camera
 import Utilities
 import System.Random
+import System.IO
 import Data.Maybe (catMaybes)
 
 randomLambert :: Vec3 -> StdGen -> (Sphere, StdGen)
@@ -68,6 +69,9 @@ main = do
         -- world = HittableList (sortBy (distFromCamera lookFrom) l)
         -- world = HittableList l
 
-        cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
-
-    render cam world
+        cam = initialize (16.0/9.0) 1920 100 vFov lookFrom lookAt vUp
+    renderParallel cam world
+    --     content = "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255\n"
+    -- withFile "image.ppm" WriteMode $ \handle -> do
+    --     hPutStr handle (content ++ res)
+    -- putStr res
