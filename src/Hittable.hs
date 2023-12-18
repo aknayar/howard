@@ -23,42 +23,42 @@ class Material a where
 
 data Lambertian = Lambertian Vec3
 instance Material Lambertian where
-    scatter _ record g (Lambertian albedo) = 
-        (Just (Ray (p record) scatter_direction, albedo), g1)
+    scatter _ (HitRecord p' n' _ _ _) g (Lambertian albedo) = 
+        (Just (Ray p' scatter_direction, albedo), g1)
             where
                 (rand, g1) = randomUnitVector g
-                new_scatter = (n record) `addVec3` rand
-                scatter_direction = if (nearZero new_scatter) then (n record) else (new_scatter)
+                new_scatter = n' `addVec3` rand
+                scatter_direction = if (nearZero new_scatter) then n' else (new_scatter)
 
 data Metal = Metal Vec3 Double
 instance Material Metal where
-    scatter ray record g (Metal albedo fuzz) = 
-        if ((direction scattered) `dot` (n record) > 0) then (Just (scattered, albedo), g1) else (Nothing, g1)
+    scatter ray (HitRecord p' n' _ _ _) g (Metal albedo fuzz) = 
+        if ((direction scattered) `dot` n' > 0) then (Just (scattered, albedo), g1) else (Nothing, g1)
             where
-                reflected = reflect (unitVector (direction ray)) (n record)
+                reflected = reflect (unitVector (direction ray)) n'
                 (rand, g1) = randomUnitVector g
-                scattered = (Ray (p record) (reflected `addVec3` (rand `multiplyVec3` fuzz)))
+                scattered = (Ray p' (reflected `addVec3` (rand `multiplyVec3` fuzz)))
 
 data Dielectric = Dielectric Double
 instance Material Dielectric where
-    scatter ray record g (Dielectric ir) =
+    scatter ray (HitRecord p' n' _ _ f') g (Dielectric ir) =
         (Just (scattered, color), g)
             where
                 color = Vec3 1.0 1.0 1.0
-                refractionRatio = if front_face record then 1.0 / ir else ir
+                refractionRatio = if f' then 1.0 / ir else ir
 
                 unitDirection = unitVector (direction ray)
 
-                cosTheta = min (negateVec3 unitDirection `dot` n record) 1.0
+                cosTheta = min (negateVec3 unitDirection `dot` n') 1.0
                 sinTheta = sqrt (1.0 - cosTheta * cosTheta)
 
                 cannotRefract = refractionRatio * sinTheta > 1.0
 
-                scattered = if cannotRefract then Ray (p record) (reflect unitDirection (n record)) else Ray (p record) (refract unitDirection (n record) refractionRatio)
+                scattered = if cannotRefract then Ray p' (reflect unitDirection n') else Ray p' (refract unitDirection n' refractionRatio)
 
 
 
-data HitRecord = forall a. Material a => HitRecord { p :: Vec3, n :: Vec3, mat :: a, t :: Double, front_face :: Bool }
+data HitRecord = forall a. Material a => HitRecord Vec3 Vec3 a Double Bool
 
 setFaceNormal :: Ray -> Vec3 -> HitRecord -> HitRecord
 setFaceNormal r outward_normal (HitRecord pOriginal _ matOriginal tOriginal _) =
@@ -79,4 +79,4 @@ instance Hittable a => Hittable (HittableList a) where
             hitHelper ray' range' record' (HittableList (x':xs)) =
                 case hit ray' range' record' x' of
                             Nothing -> hitHelper ray' range' record' (HittableList xs)
-                            Just valid -> hitHelper ray' (Interval (t_min range) (t valid)) (Just valid) (HittableList xs)
+                            (Just valid@(HitRecord _ _ _ t' _)) -> hitHelper ray' (Interval (t_min range) t') (Just valid) (HittableList xs)
