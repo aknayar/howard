@@ -41,4 +41,4 @@ writeColorStr (Vec3 r g b) samples = res
                     ir = 256 * clamp range rGamma
                     ig = 256 * clamp range gGamma
                     ib = 256 * clamp range bGamma
-                    res  = show ir ++ " " ++ show ig ++ " " ++ show ib ++ "\n"
+                    res  = show ir ++ " " ++ show ig ++ " " ++ show ib
