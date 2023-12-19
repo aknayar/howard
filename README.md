@@ -10,7 +10,7 @@ stack build
 stack exec howard-exe <single?> <scene?> > <imagename>.ppm
 ```
 
-To run the single-threaded implementation of Howard, include `single` argument when running `stack exec`, otherwise do not include the argument for the parallelized version. To generate one of the given the test scenes, include the name of the scene as an argument. Not including a scene argument will generate the default scene. to output the results to a file, pipe stdout to a ppm file.
+To run the single-threaded implementation of Howard, include the `single` argument when running `stack exec`, otherwise do not include the argument for the parallelized version. To generate one of the given the test scenes, include the name of the scene as an argument. Not including a scene argument will generate the default scene. to output the results to a file, pipe stdout to a ppm file.
 
 ## Generating a Test Scene
 
@@ -34,7 +34,7 @@ To generate this scene use `metal` as the scene argument when running `stack exe
 ### Dielectric Sphere Scene
 ![Dielectric Scene](images/dielectrics.png)
 
-To generate this scene use `dielectrics` as the scene argument when running `stack exec`
+To generate this scene use `dielectric` as the scene argument when running `stack exec`
 
 ### Hollow Glass Sphere Scene
 ![Hollow Sphere Scene](images/hollowsphere.png)
