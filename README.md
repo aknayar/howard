@@ -7,10 +7,10 @@ Howard requires Stack to run. To get started run the following command
 ```
 stack setup
 stack build
-stack exec howard-exe <single?> <scene?>
+stack exec howard-exe <single?> <scene?> > <imagename>.ppm
 ```
 
-To run the single-threaded implementation of Howard, include `single` argument when running `stack exec`, otherwise do not include the argument for the parallelized version. To generate one of the given the test scenes, include the name of the scene as an argument. Not including a scene argument will generate the default scene.
+To run the single-threaded implementation of Howard, include `single` argument when running `stack exec`, otherwise do not include the argument for the parallelized version. To generate one of the given the test scenes, include the name of the scene as an argument. Not including a scene argument will generate the default scene. to output the results to a file, pipe stdout to a ppm file.
 
 ## Generating a Test Scene
 
