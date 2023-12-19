@@ -66,9 +66,6 @@ main = do
         lookAt = Vec3 0 0 0
         vUp = Vec3 0 1 0
 
-        -- world = HittableList (sortBy (distFromCamera lookFrom) l)
-        -- world = HittableList l
-
         cam = initialize (16.0/9.0) 1920 100 vFov lookFrom lookAt vUp
     renderParallel cam world
     --     content = "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255\n"
