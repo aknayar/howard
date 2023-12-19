@@ -118,7 +118,7 @@ main = do
                 groundSphere = Sphere (Vec3 0 (-100.5) 0) 100 material_ground
                 sphere1 = Sphere (Vec3 0 0 (-1)) 0.5 material1
                 sphere1Inner = Sphere (Vec3 0 0 (-1)) (-0.4) material1
-                sphere2 =  Sphere (Vec3 1 0 (-1)) 0.5 material2
+                sphere2 =  Sphere (Vec3 1.01 0 (-1)) 0.5 material2
                 world = HittableList [sphere1, sphere1Inner, sphere2, groundSphere]
 
                 vFov = 90
