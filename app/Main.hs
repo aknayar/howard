@@ -62,14 +62,6 @@ main = do
                 sphere2 = Sphere (Vec3 (-4) 1 0) 1.0 material2
                 sphere1 = Sphere (Vec3 4 1 0) 1.0 material3
 
-    case scene of
-        "final" -> do
-            let
-                groundSphere = Sphere (Vec3 0 (-1000) 0) 1000 material_ground
-                sphere3 = Sphere (Vec3 0 1 0) 1.0 material1
-                sphere2 = Sphere (Vec3 (-4) 1 0) 1.0 material2
-                sphere1 = Sphere (Vec3 4 1 0) 1.0 material3
-
                 world = HittableList ([sphere1, sphere2, sphere3] ++ objects ++ [groundSphere])
 
                 vFov = 20
@@ -77,7 +69,6 @@ main = do
                 lookAt = Vec3 0 0 0
                 vUp = Vec3 0 1 0
                 cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
-
             renderParallel cam world        
         "lambertian" -> do
             let
@@ -92,6 +83,7 @@ main = do
                 lookAt = Vec3 0 0 (-1)
                 vUp = Vec3 0 1 0
                 cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
+            renderParallel cam world
         "metal" -> do
             let
                 groundSphere = Sphere (Vec3 0 (-100.5) 0) 100 material_ground
@@ -104,6 +96,7 @@ main = do
                 lookAt = Vec3 0 0 (-1)
                 vUp = Vec3 0 1 0
                 cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
+            renderParallel cam world
         "dielectric" -> do
             let
                 groundSphere = Sphere (Vec3 0 (-100.5) 0) 100 material_ground
@@ -116,6 +109,7 @@ main = do
                 lookAt = Vec3 0 0 (-1)
                 vUp = Vec3 0 1 0
                 cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
+            renderParallel cam world
         "hollow-sphere" -> do
             let
                 groundSphere = Sphere (Vec3 0 (-100.5) 0) 100 material_ground
@@ -129,6 +123,7 @@ main = do
                 lookAt = Vec3 0 0 (-1)
                 vUp = Vec3 0 1 0
                 cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
+            renderParallel cam world
         _ -> do
             let
                 groundSphere = Sphere (Vec3 0 (-1000) 0) 1000 material_ground
@@ -145,4 +140,4 @@ main = do
 
                 cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
 
-    renderParallel cam world
+            renderParallel cam world
