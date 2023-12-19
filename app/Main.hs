@@ -45,7 +45,9 @@ main :: IO ()
 main = do
     args <- getArgs
     let
-        scene = if not (null args) then head args else ""
+        notParallel = if not (null args) then (if head args == "single" then True else False) else False
+        remainingArgs = if not (null args) then (if head args == "single" then tail args else args) else args
+        scene = if not (null remainingArgs) then head remainingArgs else ""
         material_ground = Lambertian (Vec3 0.5 0.5 0.5)
         objects = (catMaybes [randomBall a b (mkStdGen (21 * a + b)) | a <- [-11,-10..11], b <- [-11,-10..11]])
 
@@ -69,7 +71,9 @@ main = do
                 lookAt = Vec3 0 0 0
                 vUp = Vec3 0 1 0
                 cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
-            renderParallel cam world        
+            case notParallel of
+                True -> render cam world
+                False -> renderParallel cam world        
         "lambertian" -> do
             let
 
@@ -83,7 +87,9 @@ main = do
                 lookAt = Vec3 0 0 (-1)
                 vUp = Vec3 0 1 0
                 cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
-            renderParallel cam world
+            case notParallel of
+                True -> render cam world
+                False -> renderParallel cam world  
         "metal" -> do
             let
                 groundSphere = Sphere (Vec3 0 (-100.5) 0) 100 material_ground
@@ -96,7 +102,9 @@ main = do
                 lookAt = Vec3 0 0 (-1)
                 vUp = Vec3 0 1 0
                 cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
-            renderParallel cam world
+            case notParallel of
+                True -> render cam world
+                False -> renderParallel cam world    
         "dielectric" -> do
             let
                 groundSphere = Sphere (Vec3 0 (-100.5) 0) 100 material_ground
@@ -109,7 +117,9 @@ main = do
                 lookAt = Vec3 0 0 (-1)
                 vUp = Vec3 0 1 0
                 cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
-            renderParallel cam world
+            case notParallel of
+                True -> render cam world
+                False -> renderParallel cam world  
         "hollow-sphere" -> do
             let
                 groundSphere = Sphere (Vec3 0 (-100.5) 0) 100 material_ground
@@ -123,7 +133,9 @@ main = do
                 lookAt = Vec3 0 0 (-1)
                 vUp = Vec3 0 1 0
                 cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
-            renderParallel cam world
+            case notParallel of
+                True -> render cam world
+                False -> renderParallel cam world  
         _ -> do
             let
                 groundSphere = Sphere (Vec3 0 (-1000) 0) 1000 material_ground
@@ -139,5 +151,6 @@ main = do
                 vUp = Vec3 0 1 0
 
                 cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
-
-            renderParallel cam world
+            case notParallel of
+                True -> render cam world
+                False -> renderParallel cam world  

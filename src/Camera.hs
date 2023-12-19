@@ -2,7 +2,8 @@ module Camera(
     Camera (Camera),
     initialize,
     rayColor,
-    renderParallel
+    renderParallel,
+    render
 ) where
 
 import Vec3
@@ -75,6 +76,14 @@ renderParallel cam world = do
     let rows = [0..imageHeight cam - 1]
     let processedRows = parMap rdeepseq (processRow cam world) rows
     mapM_ putStrLn processedRows
+
+render :: Hittable a => Camera -> a -> IO()
+render cam world = do
+                putStrLn $ "P3\n" ++ show (imageWidth cam) ++ " " ++ show (imageHeight cam) ++ "\n255"
+                mapM_ (\j -> mapM_ (\i -> do
+                        let (pixelColor, _) = updateColor (samplesPerPixel cam) (Vec3 0 0 0) i j cam world (mkStdGen (i * (imageHeight cam - 1) + j))
+                        writeColor pixelColor (samplesPerPixel cam)
+                    ) [0..imageWidth cam -1]) [0..imageHeight cam-1]
 
 processRow :: Hittable a => Camera -> a -> Int -> String
 processRow cam world j = unlines $ map (processPixel cam world j) [0..imageWidth cam - 1]
