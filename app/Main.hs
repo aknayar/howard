@@ -52,6 +52,10 @@ main = do
         material1 = Dielectric 1.5
         material2 = Lambertian (Vec3 0.4 0.2 0.1)
         material3 = Metal (Vec3 0.7 0.6 0.5) 0.0
+
+        width = 720
+        samples = 100
+
     case scene of
         "final" -> do
             let
@@ -66,7 +70,7 @@ main = do
                 lookFrom = Vec3 13 2 3
                 lookAt = Vec3 0 0 0
                 vUp = Vec3 0 1 0
-                cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
+                cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
 
             renderParallel cam world        
         "lambertian" -> do
@@ -81,7 +85,7 @@ main = do
                 lookFrom = Vec3 0 1 0
                 lookAt = Vec3 0 0 (-1)
                 vUp = Vec3 0 1 0
-                cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
+                cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
             renderParallel cam world
         "metal" -> do
             let
@@ -94,7 +98,7 @@ main = do
                 lookFrom = Vec3 0 1 0
                 lookAt = Vec3 0 0 (-1)
                 vUp = Vec3 0 1 0
-                cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
+                cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
             renderParallel cam world
         "dielectric" -> do
             let
@@ -107,7 +111,7 @@ main = do
                 lookFrom = Vec3 0 0 0
                 lookAt = Vec3 0 0 (-1)
                 vUp = Vec3 0 1 0
-                cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
+                cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
             renderParallel cam world
         "hollow-sphere" -> do
             let
@@ -121,7 +125,7 @@ main = do
                 lookFrom = Vec3 0 0 0
                 lookAt = Vec3 0 0 (-1)
                 vUp = Vec3 0 1 0
-                cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
+                cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
             renderParallel cam world
         _ -> do
             let
@@ -137,6 +141,6 @@ main = do
                 lookAt = Vec3 0 0 0
                 vUp = Vec3 0 1 0
 
-                cam = initialize (16.0/9.0) 400 100 vFov lookFrom lookAt vUp
+                cam = initialize (16.0/9.0) width samples vFov lookFrom lookAt vUp
 
             renderParallel cam world
