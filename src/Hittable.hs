@@ -47,16 +47,11 @@ instance Material Dielectric where
             where
                 color = Vec3 1.0 1.0 1.0
                 refractionRatio = if f' then 1.0 / ir else ir
-
                 unitDirection = unitVector (direction ray)
-
                 cosTheta = min (negateVec3 unitDirection `dot` n') 1.0
                 sinTheta = sqrt (1.0 - cosTheta * cosTheta)
-
                 cannotRefract = refractionRatio * sinTheta > 1.0
-
                 (rd, g1) = randomDouble g
-
                 scattered = if cannotRefract || reflectance cosTheta refractionRatio > rd then Ray p' (reflect unitDirection n') else Ray p' (refract unitDirection n' refractionRatio)
 
 
