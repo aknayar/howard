@@ -52,9 +52,15 @@ main = do
         material1 = Dielectric 1.5
         material2 = Lambertian (Vec3 0.4 0.2 0.1)
         material3 = Metal (Vec3 0.7 0.6 0.5) 0.0
-
         width = 720
         samples = 100
+    case scene of
+        "final" -> do
+            let
+                groundSphere = Sphere (Vec3 0 (-1000) 0) 1000 material_ground
+                sphere3 = Sphere (Vec3 0 1 0) 1.0 material1
+                sphere2 = Sphere (Vec3 (-4) 1 0) 1.0 material2
+                sphere1 = Sphere (Vec3 4 1 0) 1.0 material3
 
     case scene of
         "final" -> do
