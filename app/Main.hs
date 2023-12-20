@@ -6,6 +6,7 @@ import Hittable
 import Camera
 import Utilities
 import System.Random
+import System.Environment
 import Data.Maybe (catMaybes)
 
 randomLambert :: Vec3 -> StdGen -> (Sphere, StdGen)
