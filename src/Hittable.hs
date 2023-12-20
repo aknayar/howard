@@ -16,6 +16,7 @@ module Hittable(
 import Vec3
 import Ray
 import Interval
+import Utilities
 import System.Random
 
 class Material a where
@@ -42,7 +43,7 @@ instance Material Metal where
 data Dielectric = Dielectric Double
 instance Material Dielectric where
     scatter ray (HitRecord p' n' _ _ f') g (Dielectric ir) =
-        (Just (scattered, color), g)
+        (Just (scattered, color), g1)
             where
                 color = Vec3 1.0 1.0 1.0
                 refractionRatio = if f' then 1.0 / ir else ir
@@ -54,9 +55,17 @@ instance Material Dielectric where
 
                 cannotRefract = refractionRatio * sinTheta > 1.0
 
-                scattered = if cannotRefract then Ray p' (reflect unitDirection n') else Ray p' (refract unitDirection n' refractionRatio)
+                (rd, g1) = randomDouble g
+
+                scattered = if cannotRefract || reflectance cosTheta refractionRatio > rd then Ray p' (reflect unitDirection n') else Ray p' (refract unitDirection n' refractionRatio)
 
 
+reflectance :: Double -> Double -> Double
+reflectance cosine refIdx = ret
+    where
+        r0 = (1 - refIdx) / (1 + refIdx)
+        r0' = r0 * r0
+        ret = r0' * (1 + r0')*(1 - cosine)**5
 
 data HitRecord = forall a. Material a => HitRecord Vec3 Vec3 a Double Bool
 
