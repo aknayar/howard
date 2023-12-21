@@ -22,6 +22,8 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.7 && < 5
 - containers
+- random
+- parallel
 
 ghc-options:
 - -Wall
@@ -46,6 +48,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
+    - parallel
     - howard
 
 tests:
